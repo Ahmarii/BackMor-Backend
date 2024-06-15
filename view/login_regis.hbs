@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Example</title>
+</head>
+<body>
+  
+  <h1>Bro gotta {{prompt}}</h1>
+  <form action="/{{command}}" method="POST">
+    <label for="name">ID</label>
+    <input type="text" id="username" name="username" required><br><br>
+    <label for="age">PASS</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <button type="{{button}}">{{button}}</button>
+  </form>
+</body>
+</html>

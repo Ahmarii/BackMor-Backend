@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editable Form</title>
+</head>
+<body>
+
+
+
+<form id="editableForm">
+    <label for="name">Firstname:</label>
+    <input type="text" id="firstname" value="{{firstname}}" readonly><br><br>
+    
+    <label for="age">Lastname:</label>
+    <input type="text" id="lastname" value="{{lastname}}" readonly><br><br>
+</form>
+
+<button type="button" onclick="toggleEdit()">Edit</button>
+<button type="button" onclick="resetForm()">reset</button><br><br>
+
+
+
+<script>
+function toggleEdit() {
+    var formElements = document.getElementById("editableForm").elements;
+    var editButton = document.querySelector("button");
+
+    // Toggle the readonly attribute of form elements
+    for (var i = 0; i < formElements.length; i++) {
+        formElements[i].readOnly = !formElements[i].readOnly;
+    }
+
+    // Toggle the button text
+    if (editButton.innerText === "Edit") {
+        editButton.innerText = "Save change";
+    } else {
+        editButton.innerText = "Edit";
+        saveChanges();
+    }
+}
+
+function saveChanges() {
+    console.log('Save Changes button clicked');
+    var formElements = document.getElementById("editableForm").elements;
+    var formData = {};
+    
+    // Create an object with form field values
+    for (var i = 0; i < formElements.length; i++) {
+        var fieldName = formElements[i].id;
+        var fieldValue = formElements[i].value;
+        formData[fieldName] = fieldValue;
+    }
+    
+    const data = JSON.stringify(formData);
+
+
+    // Send the formData object to the server using fetch
+    fetch('/profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: data
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+
+}
+
+function resetForm() {
+    var formElements = document.getElementById("editableForm").elements;
+    // Reset the values of form fields to default
+    for (var i = 0; i < formElements.length; i++) {
+        formElements[i].value = formElements[i].defaultValue;
+    }
+}
+
+</script>
+
+</body>
+</html>

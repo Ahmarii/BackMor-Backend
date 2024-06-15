@@ -12,6 +12,8 @@ function getUserdataByid(id) {
     })
 }
 
+
+
 function uploadProfileImage(name, id) {
     return new Promise((resolve, reject) => {
         db.query(`INSERT INTO public.images (user_id, image_name ) VALUES ($1, $2) RETURNING images_id`, [id, name], (err, res) => {
@@ -36,6 +38,37 @@ function getProfileImage(id) {
     })
 }
 
+function uploadProfileImage(name, id) {
+    return new Promise((resolve, reject) => {
+        // Attempt to insert the image
+        db.query(
+            `INSERT INTO public.images (user_id, image_name) VALUES ($1, $2) 
+             ON CONFLICT (user_id) DO UPDATE SET image_name = EXCLUDED.image_name 
+             RETURNING images_id`,
+            [id, name],
+            (err, res) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(res.rows[0]);
+                }
+            }
+        );
+    });
+}
+
+
+// function getProfileImageByName(username) {
+//     return new Promise((resolve, reject) => {
+//         db.query(`SELECT image_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE username = $1;`, [username], (err, res) => {
+//             if (err) {
+//                 reject(err)
+//             } else {
+//                 resolve(res.rows[0])
+//             }
+//         })
+//     })
+// }
 
 function getUserdata(username) {
     return new Promise((resolve, reject) => {
@@ -51,7 +84,7 @@ function getUserdata(username) {
 
 function getCustomerDataByName(username) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM customerdata JOIN username_password ON customerdata.user_id = username_password.id WHERE username = $1;`, 
+        db.query(`SELECT * FROM public.customerdata JOIN username_password ON customerdata.user_id = username_password.id WHERE username = $1;`, 
             [username],
             (err, data) => {
                 if (err) {
@@ -120,5 +153,6 @@ module.exports = {
     getUserdataByid,
     getCustomerDataByName,
     getProfileImage,
-    uploadProfileImage
+    uploadProfileImage,
+    getProfileImageByName
 }

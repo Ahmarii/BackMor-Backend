@@ -12,6 +12,31 @@ function getUserdataByid(id) {
     })
 }
 
+function uploadProfileImage(name, type, data, id) {
+    return new Promise((resolve, reject) => {
+        db.query(`INSERT INTO images (filename, content_type, data, user_id) VALUES ($1, $2, $3, $4) RETURNING images_id`, [name, type, data, id], (err, res) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(res.rows[0])
+            }
+        })
+    })  
+}
+
+function getProfileImage(id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(res.rows[0])
+            }
+        })
+    })
+}
+
+
 function getUserdata(username) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.username_password WHERE username = $1`, [username], (err, res) => {
@@ -92,5 +117,7 @@ module.exports = {
     insertUser,
     updateData,
     getUserdataByid,
-    getCustomerDataByName
+    getCustomerDataByName,
+    getProfileImage,
+    uploadProfileImage
 }

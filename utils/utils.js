@@ -12,9 +12,9 @@ function getUserdataByid(id) {
     })
 }
 
-function uploadProfileImage(name, type, data, id) {
+function uploadProfileImage(name, id) {
     return new Promise((resolve, reject) => {
-        db.query(`INSERT INTO images (filename, content_type, data, user_id) VALUES ($1, $2, $3, $4) RETURNING images_id`, [name, type, data, id], (err, res) => {
+        db.query(`INSERT INTO public.images (user_id, image_name ) VALUES ($1, $2) RETURNING images_id`, [id, name], (err, res) => {
             if (err) {
                 reject(err)
             } else {
@@ -26,7 +26,7 @@ function uploadProfileImage(name, type, data, id) {
 
 function getProfileImage(id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
+        db.query(`SELECT image_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
             if (err) {
                 reject(err)
             } else {
@@ -108,6 +108,7 @@ async function updateData(data, id) {
         console.log(`Row update`)
     })
 }
+
 
 
 module.exports = {

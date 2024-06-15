@@ -7,30 +7,39 @@ const fs = require('fs')
 
 const router = express.Router();
 
+
+router.use('/public', express.static(path.join(__dirname, 'public')));
+
 router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
 });
 
 router.get('/profile/:name', ensureAuthenticated, async (req, res) => {
     const data = await utils.getCustomerDataByName(req.user.username)
-    const img = await utils.getProfileImage(req.user.id) ?? path.join(__dirname, '..', '/scr', 'josukarn.png')
-
-    const imgData = img.data;
-    console.log(imgData)
-    
-    res.send(imgData)
-
     const firstname = data.firstname;
     const lastname = data.lastname;
 
+    const img = await utils.getProfileImage(req.user.id)
+    const img2 = './public/' + img.image_name
+
+    
+    const imagePath = path.join(__dirname, '../public/', img.image_name);
+
+
     if (req.params.name == req.user.username) {
-        res.render('profile', { firstname, lastname, imgData });
+        res.render('profile', { firstname, lastname, imagePath });
     } else {
-        res.render('other_profile', { firstname, lastname, imgData })
+        res.render('other_profile', { firstname, lastname, imagePath })
     }
 
 
 });
+
+router.get('/image/:id', async (req, res) => {
+    const img = await utils.getProfileImage(req.params.id)
+    console.log(img)
+    res.end(img.img)
+})
 
 router.post('/profile', async (req, res) => {
     const formdata = req.body;
@@ -83,31 +92,34 @@ router.post('/login', authenticatedUser);
 
 
 const multer = require('multer');
-const upload = multer({ dest: path.join(__dirname, '..', '/scr', 'uploads/') }); 
 
 
-router.post('/upload', upload.single('image'), async (req, res) => {
-    console.log('naheeee')
-    console.log(req.file)
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public');
+    },
+    filename: function (req, file, cb) {
+      const username = req.user.username; // assuming username is sent in the body
+      const timestamp = Date.now();
+      const extension = path.extname(file.originalname);
+      cb(null, `${timestamp}_${username}${extension}`);
+    }
+  });
+  
+  const upload = multer({ storage: storage });
+  
+  router.post('/upload', upload.single('image'), async (req, res) => {
     try {
 
-        if (!req.file) {
-            return res.status(400).json({ message: 'No file uploaded' });
-        }
+        utils.uploadProfileImage(req.file.filename, req.user.id)
 
-        // Read the file content
-        const fileContent = await fs.promises.readFile(req.file.path);
-
-        // Insert into PostgreSQL
-        const result = await utils.uploadProfileImage(req.file.originalname, req.file.mimetype, fileContent, req.user.id);
-
-
-        res.json({ message: 'File uploaded successfully', id: result.rows[0].images_id });
+        console.log(req.file);
+        res.status(200).send('File uploaded successfully');
     } catch (error) {
-        console.error('Error uploading file:', error);
-        res.status(500).json({ message: 'Error uploading file' });
+        res.status(500).send('Error uploading file');
     }
-});
+  });
 
 
 module.exports = router;

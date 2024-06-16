@@ -1,4 +1,23 @@
 const { db, closedb } = require('../database/db_main.js');
+const multer = require('multer');
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'public');
+    },
+    filename: async function (req, file, cb) {
+      const username = req.user.username; // assuming username is sent in the body
+      const timestamp = Date.now();
+      const extension = path.extname(file.originalname);
+
+      const filename = `${timestamp}_${username}${extension}`
+
+      cb(null, filename);
+    }
+  });
+  
+const upload = multer({ storage: storage });
 
 function getUserdataByid(id) {
     return new Promise((resolve, reject) => {
@@ -25,18 +44,6 @@ function getProfileImage(id) {
     })
 }
 
-
-// function uploadProfileImage(name, id) {
-//     return new Promise((resolve, reject) => {
-//         db.query(`INSERT INTO public.images (user_id, image_names ) VALUES ($1, $2) RETURNING images_id`, [id, name], (err, res) => {
-//             if (err) {
-//                 reject(err)
-//             } else {
-//                 resolve(res.rows[0])
-//             }
-//         })
-//     })  
-// }
 
 function uploadProfileImage(name, id) {
     return new Promise((resolve, reject) => {
@@ -154,5 +161,6 @@ module.exports = {
     getCustomerDataByName,
     getProfileImage,
     uploadProfileImage,
-    getProfileImageByName
+    getProfileImageByName,
+    upload
 }

@@ -91,39 +91,9 @@ router.post('/submit', async (req, res) => {
 
 router.post('/login', authenticatedUser);
 
-
-
-// Img upload test.
-
-
-
-const multer = require('multer');
-
-
-
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'public');
-    },
-    filename: async function (req, file, cb) {
-      const username = req.user.username; // assuming username is sent in the body
-      const timestamp = Date.now();
-      const extension = path.extname(file.originalname);
-
-      const filename = `${timestamp}_${username}${extension}`
-
-    //   const salt = await bcrypt.genSalt(10);
-    //   const hash_name = await bcrypt.hash(filename, salt);
-
-      cb(null, filename);
-    }
-  });
   
-  const upload = multer({ storage: storage });
-  
-  router.post('/upload', upload.single('image'), async (req, res) => {
+  router.post('/upload', utils.upload.single('image'), async (req, res) => {
     try {
-
 
         utils.uploadProfileImage(req.file.filename, req.user.id)
 

@@ -90,19 +90,19 @@ router.post('/submit', async (req, res) => {
 router.post('/login', authenticatedUser);
 
   
-  router.post('/upload', utils.upload.single('image'), async (req, res) => {
-    try {
+router.post('/upload', utils.upload.single('image'), async (req, res) => {
+try {
 
-        utils.uploadProfileImage(req.file.filename, req.user.id)
+    utils.uploadProfileImage(req.file.filename, req.user.id)
 
-        // console.log(req.file);
-        console.log('File uploaded successfully')
-        res.redirect(`/profile/${req.user.username}`)
+    // console.log(req.file);
+    console.log('File uploaded successfully')
+    res.redirect(`/profile/${req.user.username}`)
 
-    } catch (error) {
-        res.status(500).send('Error uploading file');
-    }
-  });
+} catch (error) {
+    res.status(500).send('Error uploading file');
+}
+});
 
 
 module.exports = router;

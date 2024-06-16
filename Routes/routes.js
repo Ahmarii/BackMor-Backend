@@ -11,12 +11,13 @@ const router = express.Router();
 
 
 router.get('/image/:name', async (req, res) => {
+    console.log('isus')
     const img = await utils.getProfileImageByName(req.params.name)
     console.log(img)
     if (!img) {
         res.sendFile(path.join(__dirname, `../public/default.jpg`))
     } else {
-        res.sendFile(path.join(__dirname, `../public/${img.image_name}`))
+        res.sendFile(path.join(__dirname, `../public/${img.images_name}`))
     }
 
 })
@@ -27,6 +28,8 @@ router.get('/', (req, res) => {
 
 router.get('/profile/:name', ensureAuthenticated, async (req, res) => {
     const data = await utils.getCustomerDataByName(req.params.name)
+
+    // console.log(data)
     const firstname = data.firstname;
     const lastname = data.lastname;
 

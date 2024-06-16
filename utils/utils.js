@@ -13,22 +13,9 @@ function getUserdataByid(id) {
 }
 
 
-
-function uploadProfileImage(name, id) {
-    return new Promise((resolve, reject) => {
-        db.query(`INSERT INTO public.images (user_id, image_name ) VALUES ($1, $2) RETURNING images_id`, [id, name], (err, res) => {
-            if (err) {
-                reject(err)
-            } else {
-                resolve(res.rows[0])
-            }
-        })
-    })  
-}
-
 function getProfileImage(id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT image_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
+        db.query(`SELECT images_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
             if (err) {
                 reject(err)
             } else {
@@ -38,12 +25,25 @@ function getProfileImage(id) {
     })
 }
 
+
+// function uploadProfileImage(name, id) {
+//     return new Promise((resolve, reject) => {
+//         db.query(`INSERT INTO public.images (user_id, image_names ) VALUES ($1, $2) RETURNING images_id`, [id, name], (err, res) => {
+//             if (err) {
+//                 reject(err)
+//             } else {
+//                 resolve(res.rows[0])
+//             }
+//         })
+//     })  
+// }
+
 function uploadProfileImage(name, id) {
     return new Promise((resolve, reject) => {
         // Attempt to insert the image
         db.query(
-            `INSERT INTO public.images (user_id, image_name) VALUES ($1, $2) 
-             ON CONFLICT (user_id) DO UPDATE SET image_name = EXCLUDED.image_name 
+            `INSERT INTO public.images (user_id, images_name) VALUES ($1, $2) 
+             ON CONFLICT (user_id) DO UPDATE SET images_name = EXCLUDED.images_name 
              RETURNING images_id`,
             [id, name],
             (err, res) => {
@@ -58,17 +58,17 @@ function uploadProfileImage(name, id) {
 }
 
 
-// function getProfileImageByName(username) {
-//     return new Promise((resolve, reject) => {
-//         db.query(`SELECT image_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE username = $1;`, [username], (err, res) => {
-//             if (err) {
-//                 reject(err)
-//             } else {
-//                 resolve(res.rows[0])
-//             }
-//         })
-//     })
-// }
+function getProfileImageByName(username) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT images_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE username = $1;`, [username], (err, res) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(res.rows[0])
+            }
+        })
+    })
+}
 
 function getUserdata(username) {
     return new Promise((resolve, reject) => {

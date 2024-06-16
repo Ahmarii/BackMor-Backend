@@ -1,5 +1,6 @@
 const { db, closedb } = require('../database/db_main.js');
 const multer = require('multer');
+const path = require('path')
 
 
 const storage = multer.diskStorage({

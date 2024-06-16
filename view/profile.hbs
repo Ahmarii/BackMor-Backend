@@ -20,6 +20,7 @@
     <button type="submit">Upload</button>
 </form><br><br>
 
+
 <form id="editableForm">
     <label for="name">Firstname:</label>
     <input type="text" id="firstname" value="{{firstname}}" readonly><br><br>
@@ -34,6 +35,8 @@
 
 
 <script>
+
+
 function toggleEdit() {
     var formElements = document.getElementById("editableForm").elements;
     var editButton = document.querySelector("button");

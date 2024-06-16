@@ -11,9 +11,7 @@ const router = express.Router();
 
 
 router.get('/image/:name', async (req, res) => {
-    console.log('isus')
     const img = await utils.getProfileImageByName(req.params.name)
-    console.log(img)
     if (!img) {
         res.sendFile(path.join(__dirname, `../public/default.jpg`))
     } else {
@@ -97,8 +95,10 @@ router.post('/login', authenticatedUser);
 
         utils.uploadProfileImage(req.file.filename, req.user.id)
 
-        console.log(req.file);
-        res.status(200).send('File uploaded successfully');
+        // console.log(req.file);
+        console.log('File uploaded successfully')
+        res.redirect(`/profile/${req.user.username}`)
+
     } catch (error) {
         res.status(500).send('Error uploading file');
     }

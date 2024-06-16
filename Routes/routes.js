@@ -1,26 +1,49 @@
 const express = require('express');
 const utils = require('../utils/utils.js');
 const { ensureAuthenticated, register, authenticatedUser } = require('../login_sys/main.js');
+const { db, closedb } = require('../database/db_main.js');
+const path = require('path')
+const fs = require('fs')
+const bcrypt = require('bcrypt')
 
 const router = express.Router();
+
+
+
+router.get('/image/:name', async (req, res) => {
+    const img = await utils.getProfileImageByName(req.params.name)
+    if (!img) {
+        res.sendFile(path.join(__dirname, `../public/default.jpg`))
+    } else {
+        res.sendFile(path.join(__dirname, `../public/${img.images_name}`))
+    }
+
+})
 
 router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
 });
 
 router.get('/profile/:name', ensureAuthenticated, async (req, res) => {
-    const data = await utils.getCustomerDataByName(req.user.username)
+    const data = await utils.getCustomerDataByName(req.params.name)
+
+    // console.log(data)
     const firstname = data.firstname;
     const lastname = data.lastname;
 
+    const name = req.params.name
+
+
     if (req.params.name == req.user.username) {
-        res.render('profile', { firstname, lastname });
+        res.render('profile', { firstname, lastname, name });
     } else {
-        res.render('other_profile', { firstname, lastname })
+        res.render('other_profile', { firstname, lastname, name })
     }
 
 
 });
+
+
 
 router.post('/profile', async (req, res) => {
     const formdata = req.body;
@@ -65,5 +88,21 @@ router.post('/submit', async (req, res) => {
 });
 
 router.post('/login', authenticatedUser);
+
+  
+router.post('/upload', utils.upload.single('image'), async (req, res) => {
+try {
+
+    utils.uploadProfileImage(req.file.filename, req.user.id)
+
+    // console.log(req.file);
+    console.log('File uploaded successfully')
+    res.redirect(`/profile/${req.user.username}`)
+
+} catch (error) {
+    res.status(500).send('Error uploading file');
+}
+});
+
 
 module.exports = router;

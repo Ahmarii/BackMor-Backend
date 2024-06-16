@@ -6,6 +6,19 @@
 <body>
 
 
+<div>
+    <img src="http://localhost:5000/image/{{name}}" alt="Image" style="max-width: 360px; max-height: 360px; width: auto; height: auto;">
+
+</div>
+
+<h2>Upload a File</h2>
+<form action="/upload" method="POST" enctype="multipart/form-data">
+    <label for="file">Choose a file:</label>
+    <input type="file" id="file" name="image" required>
+    <br><br>
+    <button type="submit">Upload</button>
+</form><br><br>
+
 
 <form id="editableForm">
     <label for="name">Firstname:</label>
@@ -21,6 +34,8 @@
 
 
 <script>
+
+
 function toggleEdit() {
     var formElements = document.getElementById("editableForm").elements;
     var editButton = document.querySelector("button");

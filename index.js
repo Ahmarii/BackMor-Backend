@@ -10,6 +10,7 @@ const passport = require('passport')
 const app = express();
 const stores = new session.MemoryStore();
 
+
 app.use(session({
     secret: 'cpre88',
     cookie: {maxAge: 30000000},

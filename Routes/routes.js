@@ -1,10 +1,11 @@
 const express = require('express');
 const utils = require('../utils/utils.js');
-const { ensureAuthenticated, register, authenticatedUser } = require('../login_sys/main.js');
+const { ensureAuthenticated, register, authenticatedUser} = require('../login_sys/main.js');
 const { db, closedb } = require('../database/db_main.js');
 const path = require('path')
 const fs = require('fs')
 const bcrypt = require('bcrypt')
+const passport = require('passport')
 
 const router = express.Router();
 
@@ -89,7 +90,28 @@ router.post('/submit', async (req, res) => {
 
 router.post('/login', authenticatedUser);
 
-  
+
+router.get('/fail', (req, res) => {
+    res.send('nahee')
+})
+
+router.post('/auth_google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+
+router.get('/logout', (req, res) => {
+    req.logout((err) => {
+      if (err) { return next(err); }
+      res.redirect('/login');
+    });
+  });
+
+router.get('/auth_google/callback',
+    passport.authenticate('google', { failureRedirect: '/fail' }),
+    (req, res) => {
+      res.redirect(`/profile/${req.user.username}`); // Redirect to profile after successful authentication
+    }
+  );
+
+
 router.post('/upload', utils.upload.single('image'), async (req, res) => {
 try {
 

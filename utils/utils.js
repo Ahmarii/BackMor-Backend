@@ -33,6 +33,7 @@ function getUserdataByid(id) {
 }
 
 
+
 function getProfileImage(id) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT images_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
@@ -69,6 +70,18 @@ function uploadProfileImage(name, id) {
 function getProfileImageByName(username) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT images_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE username = $1;`, [username], (err, res) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(res.rows[0])
+            }
+        })
+    })
+}
+
+function getUserdataByEmail(email) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.username_password WHERE email = $1`, [email], (err, res) => {
             if (err) {
                 reject(err)
             } else {
@@ -131,8 +144,8 @@ async function createProfile(id) {
 
 
 
-async function insertUser(username, password) {
-    await db.query(`INSERT INTO public.username_password (username, password) VALUES ($1, $2)`, [username, password], function(err) {
+async function insertUser(username, password, email) {
+    await db.query(`INSERT INTO public.username_password (username, password, email) VALUES ($1, $2, $3)`, [username, password, email], function(err) {
         if (err) {
             console.error('ERROR', err.message)
         } else {
@@ -163,5 +176,6 @@ module.exports = {
     getProfileImage,
     uploadProfileImage,
     getProfileImageByName,
-    upload
+    upload,
+    getUserdataByEmail
 }

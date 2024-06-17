@@ -1,8 +1,9 @@
 const bcrypt = require('bcrypt');
-const {db, closedb} = require('../database/db_main.js')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const utils = require('../utils/utils.js')
+const generatePassword = require('generate-password')
 
 
 passport.use(new LocalStrategy(async (username, password, done) => {
@@ -25,6 +26,35 @@ passport.use(new LocalStrategy(async (username, password, done) => {
 }));
 
 
+passport.use(new GoogleStrategy({
+    clientID: process.env.google_ID,
+    clientSecret: process.env.google_secret,
+    callbackURL: 'http://localhost:5000/auth_google/callback'
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    const password = generatePassword.generate({
+        length: 30,
+        numbers: true,
+        symbols: true,
+        uppercase: true,
+        excludeSimilarCharacters: true,
+    });
+    // console.log(profile._json.email)
+    const user = await utils.getUserdataByEmail(profile._json.email)
+
+    if (user) {
+        return done(null, user);
+    }
+ 
+    await utils.insertUser(profile.id, password, profile._json.email)
+
+    const user2 = await utils.getUserdataByEmail(profile._json.email)
+    // console.log(user2)
+    await utils.createProfile(user2.id)
+
+    return done(null, user);
+  }));
+
 passport.serializeUser((user, done) => {
     const sessionUser = {
         id: user.id,
@@ -43,37 +73,6 @@ passport.deserializeUser(async (sessionUser, done) => {
     }
 });
 
-
-function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        return next()
-    } else {
-        res.redirect('/login');
-    }
-}
-
-async function register (username, password) {
-    const checker = await utils.getUserdata(username)
-
-    if (checker) {
-        console.log('User already exist.')
-        return false
-    }
-
-
-    const salt = await bcrypt.genSalt(10);
-    const hash_pass = await bcrypt.hash(password, salt);
-    await utils.insertUser(username, hash_pass)
-
-
-    const user = await utils.getUserdata(username)
-    await utils.createProfile(user.id)
-
-    console.log('Successful register.')
-    return true
-
-}
-
 function authenticatedUser(req, res, next) {
     passport.authenticate('local', function(err, user, info) {
         if (err) {
@@ -89,6 +88,39 @@ function authenticatedUser(req, res, next) {
             return res.redirect(`/profile/${req.body.username}`); 
         });
     })(req, res, next);
+}
+
+
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next()
+    } else {
+        res.redirect('/login');
+    }
+}
+
+
+
+async function register (username, password) {
+    const checker = await utils.getUserdata(username)
+
+    if (checker) {
+        console.log('User already exist.')
+        return false
+    }
+
+
+    const salt = await bcrypt.genSalt(10);
+    const hash_pass = await bcrypt.hash(password, salt);
+    await utils.insertUser(username, hash_pass, 'bruh')
+
+
+    const user = await utils.getUserdata(username)
+    await utils.createProfile(user.id)
+
+    console.log('Successful register.')
+    return true
+
 }
 
 

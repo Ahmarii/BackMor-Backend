@@ -23,6 +23,7 @@ router.get('/image/:name', async (req, res) => {
 
 router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
+    console.log(req)
 });
 
 router.get('/profile/:name', ensureAuthenticated, async (req, res) => {
@@ -87,6 +88,23 @@ router.post('/submit', async (req, res) => {
 
     res.redirect('/login');
 });
+
+
+
+// router.post('/submit', async (req, res) => {
+//     const email = req.body.username
+//     const password = req.body.password
+
+//     res.redirect()
+
+
+
+// });
+
+// router.get('/register/verify', async (req, res) => {
+
+
+// })
 
 router.post('/login', authenticatedUser);
 

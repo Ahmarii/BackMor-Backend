@@ -4,6 +4,8 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const utils = require('../utils/utils.js')
 const generatePassword = require('generate-password')
+const nodemailer = require('nodemailer');
+
 
 
 passport.use(new LocalStrategy(async (username, password, done) => {
@@ -123,11 +125,37 @@ async function register (username, password) {
 
 }
 
-
+const sendOtpEmail = (user, otp) => {
+    const transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false, // Use `true` for port 465, `false` for all other ports
+        auth: {
+          user: "marquis55@ethereal.email",
+          pass: "AyPm9nQakR8hsFdqng",
+        },
+      });
+  
+    const mailOptions = {
+      from: 'marquis55@ethereal.email',
+      to: user,
+      subject: 'Your OTP Code',
+      text: `Your OTP code is ${otp}`
+    };
+  
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Email sent:', info.response);
+      }
+    });
+  };
 
 module.exports = {
     ensureAuthenticated,
     register,
-    authenticatedUser
+    authenticatedUser,
+    sendOtpEmail
 }
 

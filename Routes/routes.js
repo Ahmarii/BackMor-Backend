@@ -1,11 +1,13 @@
 const express = require('express');
 const utils = require('../utils/utils.js');
-const { ensureAuthenticated, register, authenticatedUser} = require('../login_sys/main.js');
+const { ensureAuthenticated, register, authenticatedUser, sendOtpEmail } = require('../login_sys/main.js');
 const { db, closedb } = require('../database/db_main.js');
 const path = require('path')
 const fs = require('fs')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
+const otpGenerator = require('otp-generator');
+
 
 const router = express.Router();
 
@@ -23,7 +25,8 @@ router.get('/image/:name', async (req, res) => {
 
 router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
-    console.log(req)
+    // req.session.username = 'nahee'
+    // console.log(req.session.username)
 });
 
 router.get('/profile/:name', ensureAuthenticated, async (req, res) => {
@@ -74,37 +77,35 @@ router.get('/login', (req, res) => {
     res.render('login_regis', { prompt, command, button });
 });
 
+
+
 router.post('/submit', async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+    req.session.email = req.body.username
+    req.session.password = req.body.password
 
+    const otp = otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+    req.session.otp = otp;
+    console.log(otp)
 
-    const succesOrNot = await register(username, password);
+    sendOtpEmail(req.body.username, otp);
+    res.redirect('/register/verify')
 
-    if (!succesOrNot) {
-        res.redirect('/register')
-        return
-    }
-
-    res.redirect('/login');
 });
 
+router.get('/register/verify', async (req, res) => {
+    res.render('otp_verify')
 
+})
 
-// router.post('/submit', async (req, res) => {
-//     const email = req.body.username
-//     const password = req.body.password
-
-//     res.redirect()
-
-
-
-// });
-
-// router.get('/register/verify', async (req, res) => {
-
-
-// })
+router.post('/verify-otp', async (req, res) => {
+    const otp = await req.body.otp;
+    
+    if (req.session.otp == otp) {
+      res.redirect('/login');
+    } else {
+      res.send('Invalid OTP.');
+    }
+  });
 
 router.post('/login', authenticatedUser);
 

@@ -1,6 +1,15 @@
 const express = require('express');
 const utils = require('../utils/utils.js');
-const { ensureAuthenticated, register, authenticatedUser, sendOtpEmail } = require('../login_sys/main.js');
+const { ensureAuthenticated, 
+    register, 
+    authenticatedUser, 
+    sendOtpEmail, 
+    profile_redirect, 
+    google_auth, 
+    google_callback,
+    facebook_auth,
+    facebook_callback
+} = require('../login_sys/main.js');
 const { db, closedb } = require('../database/db_main.js');
 const path = require('path')
 const fs = require('fs')
@@ -8,9 +17,7 @@ const bcrypt = require('bcrypt')
 const passport = require('passport')
 const otpGenerator = require('otp-generator');
 
-
 const router = express.Router();
-
 
 
 router.get('/image/:name', async (req, res) => {
@@ -106,37 +113,20 @@ router.post('/verify-otp', async (req, res) => {
     }
   });
 
-router.post('/login', authenticatedUser);
-
-
 router.get('/fail', (req, res) => {
     res.send('login failed.')
 })
 
-router.post('/auth_google', passport.authenticate('google', { scope: ['profile', 'email'] }))
 
-router.get('/logout', (req, res) => {
-    req.logout((err) => {
-      if (err) { return next(err); }
-      res.redirect('/login');
-    });
-  });
+router.post('/login', authenticatedUser);
 
-router.get('/auth_google/callback',
-    passport.authenticate('google', { failureRedirect: '/fail' }),
-    (req, res) => {
-      res.redirect(`/profile/${req.user.username}`); // Redirect to profile after successful authentication
-    }
-  );
+router.post('/auth_google', google_auth)
 
-router.post('/auth_facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email']}))
+router.get('/auth_google/callback', google_callback, profile_redirect);
 
-router.get('/auth_facebook/callback',
-    passport.authenticate('facebook', { failureRedirect: '/fail' }),
-    (req, res) => {
-      res.redirect(`/profile/${req.user.username}`); // Redirect to profile after successful authentication
-    }
-  );
+router.post('/auth_facebook', facebook_auth)
+
+router.get('/auth_facebook/callback', facebook_callback, profile_redirect);
 
 
 router.post('/upload', utils.upload.single('image'), async (req, res) => {
@@ -153,5 +143,11 @@ try {
 }
 });
 
+router.get('/logout', (req, res) => {
+    req.logout((err) => {
+      if (err) { return next(err); }
+      res.redirect('/login');
+    });
+  });
 
 module.exports = router;

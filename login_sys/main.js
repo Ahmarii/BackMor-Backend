@@ -42,7 +42,7 @@ passport.use(new GoogleStrategy({
         uppercase: true,
         excludeSimilarCharacters: true,
     });
-    console.log(profile)
+    // console.log(profile)
     const user = await utils.getUserdataByEmail(profile._json.email)
 
     if (user) {
@@ -192,10 +192,27 @@ const sendOtpEmail = (user, otp) => {
     });
   };
 
+function profile_redirect (req, res) {
+    res.redirect(`/profile/${req.user.username}`); // Redirect to profile after successful authentication
+}
+
+const google_auth = passport.authenticate('google', { scope: ['profile', 'email'] })
+
+const google_callback = passport.authenticate('google', { failureRedirect: '/fail' })
+
+const facebook_auth = passport.authenticate('facebook', { scope: ['public_profile', 'email']})
+
+const facebook_callback = passport.authenticate('facebook', { failureRedirect: '/fail' })
+
 module.exports = {
     ensureAuthenticated,
     register,
     authenticatedUser,
-    sendOtpEmail
+    sendOtpEmail,
+    profile_redirect,
+    google_auth,
+    google_callback,
+    facebook_auth,
+    facebook_callback
 }
 

@@ -33,6 +33,7 @@ function getUserdataByid(id) {
 }
 
 
+
 function getProfileImage(id) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT images_name FROM images JOIN username_password ON images.user_id = username_password.id WHERE id = $1;`, [id], (err, res) => {
@@ -78,6 +79,18 @@ function getProfileImageByName(username) {
     })
 }
 
+function getUserdataByEmail(email) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.username_password WHERE email = $1`, [email], (err, res) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve(res.rows[0])
+            }
+        })
+    })
+}
+
 function getUserdata(username) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.username_password WHERE username = $1`, [username], (err, res) => {
@@ -90,7 +103,7 @@ function getUserdata(username) {
     })
 }
 
-function getCustomerDataByName(username) {
+function getCustomerDataByUsername(username) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.customerdata JOIN username_password ON customerdata.user_id = username_password.id WHERE username = $1;`, 
             [username],
@@ -119,8 +132,8 @@ function getCustomerData(id) {
     })
 };
 
-async function createProfile(id) {
-    await db.query(`INSERT INTO public.customerdata (firstname, lastname, user_id) VALUES ('sam', 'smith', $1)`, [id], function(err) {
+async function createProfile(firstname, lastname, id) {
+    await db.query(`INSERT INTO public.customerdata (firstname, lastname, user_id) VALUES ($1, $2, $3)`, [firstname, lastname, id], function(err) {
         if (err) {
             console.log("ERRORRRR", err.message)
         } else {
@@ -131,8 +144,8 @@ async function createProfile(id) {
 
 
 
-async function insertUser(username, password) {
-    await db.query(`INSERT INTO public.username_password (username, password) VALUES ($1, $2)`, [username, password], function(err) {
+async function insertUser(username, password, email) {
+    await db.query(`INSERT INTO public.username_password (username, password, email) VALUES ($1, $2, $3)`, [username, password, email], function(err) {
         if (err) {
             console.error('ERROR', err.message)
         } else {
@@ -146,11 +159,19 @@ async function updateData(data, id) {
         if (err) {
             return console.error(err.message)
         }
-        console.log(`Row update`)
+        console.log(`Fullname update`)
     })
 }
 
-
+async function updateUsername(data, id) {
+    await db.query(`UPDATE public.username_password SET username = $1 WHERE id = $2`, [data.username, id], function(err) {
+        if (err) {
+            console.log('Username update error.')
+            return console.error(err.message)
+        }
+        console.log(`Username update`)
+    })
+}
 
 module.exports = {
     getUserdata,
@@ -159,9 +180,11 @@ module.exports = {
     insertUser,
     updateData,
     getUserdataByid,
-    getCustomerDataByName,
+    getCustomerDataByUsername,
     getProfileImage,
     uploadProfileImage,
     getProfileImageByName,
-    upload
+    upload,
+    getUserdataByEmail,
+    updateUsername
 }

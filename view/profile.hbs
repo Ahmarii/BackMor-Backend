@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Editable Form</title>
+    <title>Profile</title>
 </head>
 <body>
 
@@ -16,15 +16,18 @@
     <label for="file">Choose a file:</label>
     <input type="file" id="file" name="image" required>
     <br><br>
-    <button type="submit">Upload</button>
+    <button type="upload">Upload</button>
 </form><br><br>
 
 
 <form id="editableForm">
-    <label for="name">Firstname:</label>
+    <label for="username">Username:</label>
+    <input type="text" id="username" value="{{username}}" readonly><br><br>
+
+    <label for="firstname">Firstname:</label>
     <input type="text" id="firstname" value="{{firstname}}" readonly><br><br>
     
-    <label for="age">Lastname:</label>
+    <label for="lastname">Lastname:</label>
     <input type="text" id="lastname" value="{{lastname}}" readonly><br><br>
 </form>
 
@@ -38,7 +41,7 @@
 
 function toggleEdit() {
     var formElements = document.getElementById("editableForm").elements;
-    var editButton = document.querySelector("button");
+    var editButton = document.querySelector("#editableForm + button");
 
     // Toggle the readonly attribute of form elements
     for (var i = 0; i < formElements.length; i++) {

@@ -14,7 +14,7 @@ async function sendImage (req, res) {
 }
 
 async function renderProfile (req, res) {
-    const data = await utils.getCustomerDataByName(req.params.name)
+    const data = await utils.getCustomerDataByUsername(req.params.name)
 
     // console.log(data)
     const firstname = data.firstname;
@@ -24,7 +24,9 @@ async function renderProfile (req, res) {
 
 
     if (req.params.name == req.user.username) {
-        res.render('profile', { firstname, lastname, name });
+        const user_data = await utils.getUserdataByid(req.user.id)
+        const username = user_data.username
+        res.render('profile', { firstname, lastname, name, username });
     } else {
         res.render('other_profile', { firstname, lastname, name })
     }
@@ -35,6 +37,10 @@ async function renderProfile (req, res) {
 async function profileUpdate (req, res) {
     const formdata = req.body;
     try {
+        await utils.updateUsername(formdata, req.user.id);
+
+        req.user.username = formdata.username;
+
         await utils.updateData(formdata, req.user.id);
         res.status(200).json({ redirect: `/profile/${req.user.username}` });
     } catch (error) {

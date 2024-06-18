@@ -103,7 +103,7 @@ function getUserdata(username) {
     })
 }
 
-function getCustomerDataByName(username) {
+function getCustomerDataByUsername(username) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.customerdata JOIN username_password ON customerdata.user_id = username_password.id WHERE username = $1;`, 
             [username],
@@ -159,11 +159,19 @@ async function updateData(data, id) {
         if (err) {
             return console.error(err.message)
         }
-        console.log(`Row update`)
+        console.log(`Fullname update`)
     })
 }
 
-
+async function updateUsername(data, id) {
+    await db.query(`UPDATE public.username_password SET username = $1 WHERE id = $2`, [data.username, id], function(err) {
+        if (err) {
+            console.log('Username update error.')
+            return console.error(err.message)
+        }
+        console.log(`Username update`)
+    })
+}
 
 module.exports = {
     getUserdata,
@@ -172,10 +180,11 @@ module.exports = {
     insertUser,
     updateData,
     getUserdataByid,
-    getCustomerDataByName,
+    getCustomerDataByUsername,
     getProfileImage,
     uploadProfileImage,
     getProfileImageByName,
     upload,
-    getUserdataByEmail
+    getUserdataByEmail,
+    updateUsername
 }

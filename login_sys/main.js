@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
 const utils = require('../utils/utils.js')
 const generatePassword = require('generate-password')
 const nodemailer = require('nodemailer');
@@ -41,21 +42,60 @@ passport.use(new GoogleStrategy({
         uppercase: true,
         excludeSimilarCharacters: true,
     });
-    // console.log(profile._json.email)
+    console.log(profile)
     const user = await utils.getUserdataByEmail(profile._json.email)
 
     if (user) {
         return done(null, user);
     }
  
-    await utils.insertUser(profile.id, password, profile._json.email)
+    await utils.insertUser('User'+ profile.id, password, profile._json.email)
 
     const user2 = await utils.getUserdataByEmail(profile._json.email)
-    // console.log(user2)
-    await utils.createProfile(user2.id)
 
-    return done(null, user);
+    const fullname = profile.displayName
+    const [firstName, lastName] = fullname.split(' ');
+
+    await utils.createProfile(firstName, lastName, user2.id)
+
+    return done(null, user2);
   }));
+
+
+passport.use(new FacebookStrategy({
+    clientID: process.env.facebook_ID,
+    clientSecret: process.env.facebook_secret,
+    callbackURL: 'http://localhost:5000/auth_facebook/callback',
+    profileFields: ['id', 'displayName', 'photos', 'email']
+    },
+    async (accessToken, refreshToken, profile, done) => {
+        const password = generatePassword.generate({
+            length: 30,
+            numbers: true,
+            symbols: true,
+            uppercase: true,
+            excludeSimilarCharacters: true,
+        });
+
+        const user = await utils.getUserdataByEmail(profile._json.email)
+    
+        if (user) {
+            console.log('Already have user.')
+            return done(null, user);
+        }
+     
+        await utils.insertUser('User'+ profile.id, password, profile._json.email)
+    
+        const user2 = await utils.getUserdataByEmail(profile._json.email)
+        // console.log(user2)
+        const fullname = profile.displayName
+        const [firstName, lastName] = fullname.split(' ');
+
+        await utils.createProfile(firstName, lastName, user2.id)
+        
+        return done(null, user2);
+    }
+))
 
 passport.serializeUser((user, done) => {
     const sessionUser = {
@@ -118,7 +158,7 @@ async function register (username, password) {
 
 
     const user = await utils.getUserdata(username)
-    await utils.createProfile(user.id)
+    await utils.createProfile(null, null, user.id)
 
     console.log('Successful register.')
     return true

@@ -25,8 +25,7 @@ router.get('/image/:name', async (req, res) => {
 
 router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
-    // req.session.username = 'nahee'
-    // console.log(req.session.username)
+
 });
 
 router.get('/profile/:name', ensureAuthenticated, async (req, res) => {
@@ -111,7 +110,7 @@ router.post('/login', authenticatedUser);
 
 
 router.get('/fail', (req, res) => {
-    res.send('nahee')
+    res.send('login failed.')
 })
 
 router.post('/auth_google', passport.authenticate('google', { scope: ['profile', 'email'] }))
@@ -125,6 +124,15 @@ router.get('/logout', (req, res) => {
 
 router.get('/auth_google/callback',
     passport.authenticate('google', { failureRedirect: '/fail' }),
+    (req, res) => {
+      res.redirect(`/profile/${req.user.username}`); // Redirect to profile after successful authentication
+    }
+  );
+
+router.post('/auth_facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email']}))
+
+router.get('/auth_facebook/callback',
+    passport.authenticate('facebook', { failureRedirect: '/fail' }),
     (req, res) => {
       res.redirect(`/profile/${req.user.username}`); // Redirect to profile after successful authentication
     }

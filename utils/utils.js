@@ -132,8 +132,8 @@ function getCustomerData(id) {
     })
 };
 
-async function createProfile(id) {
-    await db.query(`INSERT INTO public.customerdata (firstname, lastname, user_id) VALUES ('sam', 'smith', $1)`, [id], function(err) {
+async function createProfile(firstname, lastname, id) {
+    await db.query(`INSERT INTO public.customerdata (firstname, lastname, user_id) VALUES ($1, $2, $3)`, [firstname, lastname, id], function(err) {
         if (err) {
             console.log("ERRORRRR", err.message)
         } else {

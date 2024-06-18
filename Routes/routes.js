@@ -29,11 +29,11 @@ const {
 
 const router = express.Router();
 
-router.get('/image/:name', sendImage)
-
 router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
 });
+
+router.get('/image/:name', sendImage)
 
 router.get('/profile/:name', ensureAuthenticated, renderProfile);
 

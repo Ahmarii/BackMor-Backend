@@ -24,7 +24,8 @@ const {
     imageUpload,
     UploadProfileImg,
     logout,
-    searchUser
+    searchUser,
+    createEvent
 } = require('../controller/main_control.js')
 
 
@@ -67,5 +68,7 @@ router.post('/upload', imageUpload , UploadProfileImg );
 router.get('/logout', logout );
 
 router.post('/userSearch', searchUser )
+
+router.post('/createEvent', createEvent )
 
 module.exports = router;

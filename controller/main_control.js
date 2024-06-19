@@ -124,6 +124,10 @@ function logout (req, res) {
     });
 }
 
+async function createEvent (req, res) {
+    res.send('pap')
+}
+
 module.exports = {
     sendImage,
     renderProfile,
@@ -137,5 +141,6 @@ module.exports = {
     imageUpload,
     UploadProfileImg,
     logout,
-    searchUser
+    searchUser,
+    createEvent
 }

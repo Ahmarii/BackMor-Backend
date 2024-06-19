@@ -56,7 +56,7 @@ passport.use(new GoogleStrategy({
     const fullname = profile.displayName
     const [firstName, lastName] = fullname.split(' ');
 
-    await utils.createProfile(firstName, lastName, user2.id)
+    await utils.createProfile(firstName.toLowerCase(), lastName.toLowerCase(), user2.id)
 
     return done(null, user2);
   }));
@@ -91,7 +91,7 @@ passport.use(new FacebookStrategy({
         const fullname = profile.displayName
         const [firstName, lastName] = fullname.split(' ');
 
-        await utils.createProfile(firstName, lastName, user2.id)
+        await utils.createProfile(firstName.toLowerCase(), lastName.toLowerCase(), user2.id)
         
         return done(null, user2);
     }

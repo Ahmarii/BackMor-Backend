@@ -14,25 +14,32 @@ async function sendImage (req, res) {
 }
 
 async function renderProfile (req, res) {
+    console.log('rendering Profile')
     const data = await utils.getCustomerDataByUsername(req.params.name)
 
     // console.log(data)
     const firstname = data.firstname;
     const lastname = data.lastname;
 
-    const name = req.params.name
-
-
+    const imgName = req.params.name
     if (req.params.name == req.user.username) {
         const user_data = await utils.getUserdataByid(req.user.id)
         const username = user_data.username
-        res.render('profile', { firstname, lastname, name, username });
+        res.render('profile', { firstname, lastname, imgName, username });
     } else {
-        res.render('other_profile', { firstname, lastname, name })
+        const username = req.params.name
+        res.render('other_profile', { firstname, lastname, imgName, username })
     }
 
 }
 
+async function searchUser (req, res) {
+    const username = await req.body.query
+    console.log(username, 555555555)
+    const usernameList = await utils.searchUsername(username)
+    const usernames = usernameList.map(result => result.username);
+    res.json(usernames)
+}
 
 async function profileUpdate (req, res) {
     const formdata = req.body;
@@ -129,5 +136,6 @@ module.exports = {
     renderFailLogin,
     imageUpload,
     UploadProfileImg,
-    logout
+    logout,
+    searchUser
 }

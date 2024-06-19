@@ -23,7 +23,8 @@ const {
     renderFailLogin,
     imageUpload,
     UploadProfileImg,
-    logout
+    logout,
+    searchUser
 } = require('../controller/main_control.js')
 
 
@@ -64,5 +65,7 @@ router.get('/auth_facebook/callback', facebook_callback, profile_redirect);
 router.post('/upload', imageUpload , UploadProfileImg );
 
 router.get('/logout', logout );
+
+router.post('/userSearch', searchUser )
 
 module.exports = router;

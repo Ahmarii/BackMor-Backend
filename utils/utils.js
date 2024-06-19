@@ -142,6 +142,22 @@ async function createProfile(firstname, lastname, id) {
     })
 };
 
+function searchUsername (username) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT username FROM public.username_password WHERE username LIKE '%' || $1 || '%'`, [username],
+            (err, data) => {
+                if (err) {
+                    console.log('Search fail.')
+                    reject(err);
+                } else {
+                    console.log('Search complete.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
 
 
 async function insertUser(username, password, email) {
@@ -173,6 +189,7 @@ async function updateUsername(data, id) {
     })
 }
 
+
 module.exports = {
     getUserdata,
     getCustomerData,
@@ -186,5 +203,6 @@ module.exports = {
     getProfileImageByName,
     upload,
     getUserdataByEmail,
-    updateUsername
+    updateUsername,
+    searchUsername
 }

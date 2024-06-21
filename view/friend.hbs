@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display List Items</title>
+
+</head>
+<body>
+    <h1>List of Items</h1>
+    <ul id="itemList"></ul>
+
+    <script>
+        // JavaScript list
+        const items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
+
+        // Function to display items in the list
+        function displayItems() {
+            const itemList = document.getElementById('itemList');
+            items.forEach(item => {
+                const listItem = document.createElement('p');
+                listItem.textContent = item;
+                itemList.appendChild(listItem);
+            });
+        }
+
+        // Call the function to display items on page load
+        window.onload = displayItems;
+    </script>
+</body>
+</html>

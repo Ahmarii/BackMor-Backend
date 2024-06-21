@@ -189,6 +189,54 @@ async function updateUsername(data, id) {
     })
 }
 
+async function checkFriendReq (id, friendId) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, [id, friendId],
+            (err, data) => {
+                if (err) {
+                    console.log('Check friend req error.')
+                    reject(err);
+                } else {
+                    console.log('Friend req check sended.')
+                    resolve(data.rows[0]);
+                }
+            }
+        )
+    })
+};
+
+async function addFriend (id, friendId ) {
+    const checker = checkFriendReq(id, friendId)
+    if (checker) {
+        console.log('Already sended')
+        return 
+    }
+    await db.query(`INSERT INTO public.friend_req (user_id, friend_req) VALUES ($1, $2)`, [id , friendId], function(err) {
+        if (err) {
+            console.log('Req sended fail.')
+            return console.error(err.message)
+        }
+        console.log(`Req sended.`)
+    })
+}
+
+async function getFriendReq (user_id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT username FROM public.username_password JOIN friend_req ON username_password.id = friend_req.user_id WHERE friend_req.user_id = $1`, [user_id],
+            (err, data) => {
+                if (err) {
+                    console.log('Friend lsit req error.')
+                    reject(err);
+                } else {
+                    console.log('Friend req list sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+
 
 module.exports = {
     getUserdata,
@@ -204,5 +252,8 @@ module.exports = {
     upload,
     getUserdataByEmail,
     updateUsername,
-    searchUsername
+    searchUsername,
+    checkFriendReq,
+    addFriend,
+    getFriendReq
 }

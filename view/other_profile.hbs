@@ -65,7 +65,42 @@
     <input type="text" id="lastname" value="{{lastname}}" readonly><br><br>
 </form>
 
+
+<button type="button" id="friendButton" onclick="toggleFriendRequest()">Add friend</button>
+
 <script>
+
+function toggleFriendRequest() {
+    const button = document.getElementById('friendButton');
+    if (button.textContent === 'Add friend') {
+        button.textContent = 'Undo request';
+        add_friend();
+    } else {
+        button.textContent = 'Add friend';
+        undo_req();
+    }
+}
+
+function undo_req() {
+    fetch('/undo_friend_req', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: {{username}}
+        })
+}
+
+function add_friend() {
+    fetch('/add_friend', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: {{username}}
+        })
+}
+
 
 const searchInput = document.getElementById('search');
 const dropdown = document.getElementById('dropdown');

@@ -128,6 +128,19 @@ async function createEvent (req, res) {
     res.send('pap')
 }
 
+async function friend (req, res) {
+    res.send('friend page')
+    //เทส function getFriendReq เอา list มาแสดงผล
+}
+
+async function add_friend (req, res) {
+    const friend_username = req.body
+    const friendId = utils.getUserdata(friend_username).id
+
+    utils.addFriend(req.user.id, friendId)
+
+}
+
 module.exports = {
     sendImage,
     renderProfile,
@@ -142,5 +155,6 @@ module.exports = {
     UploadProfileImg,
     logout,
     searchUser,
-    createEvent
+    createEvent,
+    friend
 }

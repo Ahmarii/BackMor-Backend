@@ -25,7 +25,9 @@ const {
     UploadProfileImg,
     logout,
     searchUser,
-    createEvent
+    createEvent,
+    friend,
+    add_friend
 } = require('../controller/main_control.js')
 
 
@@ -70,5 +72,9 @@ router.get('/logout', logout );
 router.post('/userSearch', searchUser )
 
 router.post('/createEvent', createEvent )
+
+router.get('/friend', ensureAuthenticated, friend )
+
+router.post('/add_friend', add_friend )
 
 module.exports = router;

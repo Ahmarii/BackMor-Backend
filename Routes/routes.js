@@ -27,7 +27,9 @@ const {
     searchUser,
     createEvent,
     friend,
-    add_friend
+    add_friend,
+    friendRequest,
+    cancelFriendReq
 } = require('../controller/main_control.js')
 
 
@@ -76,5 +78,9 @@ router.post('/createEvent', createEvent )
 router.get('/friend', ensureAuthenticated, friend )
 
 router.post('/add_friend', add_friend )
+
+router.get('/friendList', friendRequest )
+
+router.post('/cancel_friend_req', cancelFriendReq )
 
 module.exports = router;

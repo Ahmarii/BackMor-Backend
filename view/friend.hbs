@@ -7,25 +7,72 @@
 
 </head>
 <body>
-    <h1>List of Items</h1>
-    <ul id="itemList"></ul>
+    <h1>Friend Requests</h1>
+    <ul id="friendRequestList"></ul>
 
     <script>
-        // JavaScript list
-        const items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'];
+        async function fetchFriendRequests() {
+            try {
+                const response = await fetch('/friendList');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const friendReqList = await response.json();
+                displayFriendRequests(friendReqList);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
 
-        // Function to display items in the list
-        function displayItems() {
-            const itemList = document.getElementById('itemList');
-            items.forEach(item => {
-                const listItem = document.createElement('p');
-                listItem.textContent = item;
-                itemList.appendChild(listItem);
+        function displayFriendRequests(friendReqList) {
+            const listElement = document.getElementById('friendRequestList');
+            listElement.innerHTML = '';  // Clear existing list items
+
+            friendReqList.forEach(request => {
+                const listItem = document.createElement('li');
+
+                const usernameDiv = document.createElement('div');
+                usernameDiv.textContent = request.username;
+                usernameDiv.className = 'username';
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel request';
+                cancelButton.className = 'cancel-button';
+                cancelButton.onclick = () => cancel_req(request.username);
+
+                listItem.appendChild(usernameDiv);
+                listItem.appendChild(cancelButton);
+                listElement.appendChild(listItem);
             });
         }
 
-        // Call the function to display items on page load
-        window.onload = displayItems;
+        async function cancel_req(username) {
+            try {
+                const response = await fetch('/cancel_friend_req', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: username })
+                });
+                if (response.ok) {
+                    console.log(`Friend request to ${username} canceled`);
+                    fetchFriendRequests();  // Refresh the list
+                } else {
+                    console.error('Failed to cancel friend request');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // Fetch and display friend requests on page load
+        window.onload = () => {
+            fetchFriendRequests();
+            // Set an interval to fetch friend requests every 10 seconds
+            setInterval(fetchFriendRequests, 10000);  // 10000 ms = 10 seconds
+        };
+
     </script>
 </body>
 </html>

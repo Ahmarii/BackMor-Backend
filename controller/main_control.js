@@ -129,16 +129,26 @@ async function createEvent (req, res) {
 }
 
 async function friend (req, res) {
-    res.send('friend page')
-    //เทส function getFriendReq เอา list มาแสดงผล
+    res.render('friend');
 }
 
 async function add_friend (req, res) {
-    const friend_username = req.body
-    const friendId = utils.getUserdata(friend_username).id
+    console.log('add friend press')
+    const friend_username = await req.body
+    const friendId = await utils.getUserdata(friend_username.username)
+    utils.addFriend(req.user.id, friendId.id)
 
-    utils.addFriend(req.user.id, friendId)
+}
 
+async function friendRequest(req, res) {
+    const friendReqList = await utils.getFriendReq(req.user.id)
+    res.json(friendReqList)
+}
+
+async function cancelFriendReq(req, res) {
+    const username = req.body.username
+    await utils.cancelFriendReq(username)
+    res.send({ status: 'ok' });
 }
 
 module.exports = {
@@ -156,5 +166,8 @@ module.exports = {
     logout,
     searchUser,
     createEvent,
-    friend
+    friend,
+    add_friend,
+    friendRequest,
+    cancelFriendReq
 }

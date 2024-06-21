@@ -206,7 +206,8 @@ async function checkFriendReq (id, friendId) {
 };
 
 async function addFriend (id, friendId ) {
-    const checker = checkFriendReq(id, friendId)
+    const checker = await checkFriendReq(id, friendId)
+    console.log(checker)
     if (checker) {
         console.log('Already sended')
         return 
@@ -222,7 +223,7 @@ async function addFriend (id, friendId ) {
 
 async function getFriendReq (user_id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT username FROM public.username_password JOIN friend_req ON username_password.id = friend_req.user_id WHERE friend_req.user_id = $1`, [user_id],
+        db.query(`SELECT username FROM public.username_password JOIN friend_req ON username_password.id = friend_req.friend_req WHERE friend_req.user_id = $1`, [user_id],
             (err, data) => {
                 if (err) {
                     console.log('Friend lsit req error.')
@@ -236,7 +237,16 @@ async function getFriendReq (user_id) {
     })
 };
 
-
+async function cancelFriendReq (username) {
+    await db.query(`DELETE FROM friend_req WHERE friend_req.friend_req IN ( SELECT username_password.id FROM username_password WHERE username_password.username = $1);`, 
+        [username], function(err) {
+        if (err) {
+            console.log('Username update error.')
+            return console.error(err.message)
+        }
+        console.log(`Username update`)
+    })
+}
 
 module.exports = {
     getUserdata,
@@ -255,5 +265,6 @@ module.exports = {
     searchUsername,
     checkFriendReq,
     addFriend,
-    getFriendReq
+    getFriendReq,
+    cancelFriendReq
 }

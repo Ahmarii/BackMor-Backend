@@ -70,34 +70,42 @@
 
 <script>
 
+const username = '{{username}}';
+
+console.log(username)
+
 function toggleFriendRequest() {
     const button = document.getElementById('friendButton');
     if (button.textContent === 'Add friend') {
         button.textContent = 'Undo request';
+        console.log('change1')
         add_friend();
     } else {
         button.textContent = 'Add friend';
+        console.log('change2')
         undo_req();
     }
 }
 
 function undo_req() {
+    console.log('undo')
     fetch('/undo_friend_req', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: {{username}}
+            body: JSON.stringify({ username: username })
         })
 }
 
 function add_friend() {
+    console.log('add')
     fetch('/add_friend', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: {{username}}
+            body: JSON.stringify({ username: username })
         })
 }
 

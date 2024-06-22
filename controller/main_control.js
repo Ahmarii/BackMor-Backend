@@ -28,7 +28,17 @@ async function renderProfile (req, res) {
         res.render('profile', { firstname, lastname, imgName, username });
     } else {
         const username = req.params.name
-        res.render('other_profile', { firstname, lastname, imgName, username })
+        const friend_data = await utils.getUserdata(username)
+        const friendId = friend_data.id
+        const checker = await utils.checkFriendReq(req.user.id, friendId)
+
+        if (checker) {
+            addFriendButton = 'Undo request'
+        } else {
+            addFriendButton = 'Add friend'
+        }
+
+        res.render('other_profile', { firstname, lastname, imgName, username, addFriendButton })
     }
 
 }

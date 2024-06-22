@@ -98,6 +98,4 @@ router.post('/acceptFriendReq', acceptFriendReq )
 
 router.post('/denyFriendReq', denyFriendReq )
 
-// accept friend req. 
-
 module.exports = router;

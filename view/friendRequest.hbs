@@ -43,7 +43,7 @@
                 const denyButton = document.createElement('button');
                 denyButton.textContent = 'Deny';
                 denyButton.className = 'deny-button';
-                denyButton.onclick = () => denytRequest(request.username);
+                denyButton.onclick = () => denyRequest(request.username);
 
                 listItem.appendChild(usernameDiv);
                 listItem.appendChild(acceptButton);
@@ -53,6 +53,7 @@
         }
 
         async function acceptRequest(username) {
+            removeFriendRequestFromUI(username);
             try {
                 const response = await fetch('/acceptFriendReq', {
                     method: 'POST',
@@ -66,13 +67,16 @@
                     fetchFriendRequests();  // Refresh the list
                 } else {
                     console.error('Failed to accept friend request');
+                    fetchFriendRequests();
                 }
             } catch (error) {
                 console.error('Error:', error);
+                fetchFriendRequests();
             }
         }
 
         async function denyRequest(username) {
+            removeFriendRequestFromUI(username);
             try {
                 const response = await fetch('/denyFriendReq', {
                     method: 'POST',
@@ -86,11 +90,21 @@
                     fetchFriendRequests();  // Refresh the list
                 } else {
                     console.error('Failed to deny friend request');
+                    fetchFriendRequests();
                 }
             } catch (error) {
                 console.error('Error:', error);
+                fetchFriendRequests();
             }
         }
+
+        function removeFriendRequestFromUI(username) {
+            const listItem = document.getElementById(`request-${username}`);
+            if (listItem) {
+                listItem.remove();
+            }
+        }
+
         // Fetch and display friend requests on page load
         window.onload = () => {
             fetchFriendRequests();

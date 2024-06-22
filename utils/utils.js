@@ -208,7 +208,7 @@ async function checkFriendReq (id, friendId) {
 
 async function addFriend (id, friendId ) {
     const checker = await checkFriendReq(id, friendId)
-    console.log(checker)
+    console.log('checker', checker)
     if (checker) {
         console.log('Already sended')
         return 
@@ -256,8 +256,10 @@ async function getFriendReqList (id) {
 
 async function cancelFriendReq (id, friend_username) {
 
-    const friend_data = getUserdata(friend_username)
+    const friend_data = await getUserdata(friend_username)
     const friend_id = friend_data.id
+
+    console.log(id, friend_username, friend_id)
 
     await db.query(`DELETE FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, 
         [id, friend_id], function(err) {
@@ -282,11 +284,21 @@ async function acceptFriendReq (id, username) {
         }
         console.log(`Accept friend request success`)
     })
+
+    await db.query(`DELETE FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, [friendId, id],
+        function(err) {
+            if (err) {
+                console.log('delete friend request Error.')
+                return console.error(err.message)
+            }
+            console.log(`delete friend request success`)
+        }
+    )
 }
 
 async function denyFriendReq (id, friend_username) {
 
-    const friend_data = getUserdata(friend_username)
+    const friend_data = await getUserdata(friend_username)
     const friend_id = friend_data.id
 
     await db.query(`DELETE FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, 

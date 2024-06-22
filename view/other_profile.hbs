@@ -66,7 +66,7 @@
 </form>
 
 
-<button type="button" id="friendButton" onclick="toggleFriendRequest()">Add friend</button>
+<button type="button" id="friendButton" onclick="toggleFriendRequest()">{{addFriendButton}}</button>
 
 <script>
 
@@ -89,7 +89,7 @@ function toggleFriendRequest() {
 
 function undo_req() {
     console.log('undo')
-    fetch('/undo_friend_req', {
+    fetch('/cancel_friend_req', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -26,10 +26,15 @@ const {
     logout,
     searchUser,
     createEvent,
-    friend,
     add_friend,
+    friendRequestList,
+    cancelFriendReq,
+    friendPage,
+    friendRequested,
+    acceptFriendReq,
+    denyFriendReq,
     friendRequest,
-    cancelFriendReq
+    friendReqList
 } = require('../controller/main_control.js')
 
 
@@ -75,12 +80,24 @@ router.post('/userSearch', searchUser )
 
 router.post('/createEvent', createEvent )
 
-router.get('/friend', ensureAuthenticated, friend )
+router.get('/friend', friendPage )
 
 router.post('/add_friend', add_friend )
+//
+router.get('/friend/friendList', ensureAuthenticated, friendRequestList )
 
-router.get('/friendList', friendRequest )
+router.get('/friend/friendReqList', ensureAuthenticated, friendReqList )
 
 router.post('/cancel_friend_req', cancelFriendReq )
+
+router.get('/friend/friendRequested', ensureAuthenticated, friendRequested )
+
+router.get('/friend/friendRequest', ensureAuthenticated, friendRequest)
+
+router.post('/acceptFriendReq', acceptFriendReq )
+
+router.post('/denyFriendReq', denyFriendReq )
+
+// accept friend req. 
 
 module.exports = router;

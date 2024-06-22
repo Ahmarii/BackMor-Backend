@@ -35,7 +35,6 @@ async function renderProfile (req, res) {
 
 async function searchUser (req, res) {
     const username = await req.body.query
-    console.log(username, 555555555)
     const usernameList = await utils.searchUsername(username)
     const usernames = usernameList.map(result => result.username);
     res.json(usernames)
@@ -128,10 +127,6 @@ async function createEvent (req, res) {
     res.send('pap')
 }
 
-async function friend (req, res) {
-    res.render('friend');
-}
-
 async function add_friend (req, res) {
     console.log('add friend press')
     const friend_username = await req.body
@@ -140,16 +135,47 @@ async function add_friend (req, res) {
 
 }
 
-async function friendRequest(req, res) {
-    const friendReqList = await utils.getFriendReq(req.user.id)
+async function friendRequestList(req, res) {
+    const friendReqedList = await utils.getFriendReqedList(req.user.id)
+    res.json(friendReqedList)
+}
+
+//friend requested list
+async function friendReqList(req, res) {
+    const friendReqList = await utils.getFriendReqList(req.user.id)
     res.json(friendReqList)
 }
 
 async function cancelFriendReq(req, res) {
     const username = req.body.username
-    await utils.cancelFriendReq(username)
+    await utils.cancelFriendReq(req.user.id, username)
     res.send({ status: 'ok' });
 }
+
+async function friendPage (req, res) {
+    res.send('all friend')
+}
+
+async function friendRequested (req, res) {
+    res.render('friendRequested')
+}
+
+function friendRequest (req, res) {
+    res.render('friendRequest')
+}
+
+async function denyFriendReq (req, res) {
+    const username = req.body.username
+    await utils.denyFriendReq(req.user.id, username)
+    res.send({ status: 'ok' });
+}
+
+async function acceptFriendReq (req, res) {
+    const username = req.body.username
+    await utils.acceptFriendReq(req.user.id, username)
+    res.send({ status: 'ok' });
+}
+
 
 module.exports = {
     sendImage,
@@ -166,8 +192,13 @@ module.exports = {
     logout,
     searchUser,
     createEvent,
-    friend,
     add_friend,
     friendRequest,
-    cancelFriendReq
+    cancelFriendReq,
+    friendPage,
+    friendRequestList,
+    friendRequested,
+    friendReqList,
+    acceptFriendReq,
+    denyFriendReq
 }

@@ -1,6 +1,7 @@
 const { db, closedb } = require('../database/db_main.js');
 const multer = require('multer');
-const path = require('path')
+const path = require('path');
+
 
 
 const storage = multer.diskStorage({
@@ -221,9 +222,9 @@ async function addFriend (id, friendId ) {
     })
 }
 
-async function getFriendReq (user_id) {
+async function getFriendReqedList (id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT username FROM public.username_password JOIN friend_req ON username_password.id = friend_req.friend_req WHERE friend_req.user_id = $1`, [user_id],
+        db.query(`SELECT username FROM public.username_password JOIN friend_req ON username_password.id = friend_req.friend_req WHERE friend_req.user_id = $1`, [id],
             (err, data) => {
                 if (err) {
                     console.log('Friend lsit req error.')
@@ -237,14 +238,64 @@ async function getFriendReq (user_id) {
     })
 };
 
-async function cancelFriendReq (username) {
-    await db.query(`DELETE FROM friend_req WHERE friend_req.friend_req IN ( SELECT username_password.id FROM username_password WHERE username_password.username = $1);`, 
-        [username], function(err) {
+async function getFriendReqList (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT username FROM public.username_password JOIN friend_req ON username_password.id = friend_req.user_id WHERE friend_req.friend_req = $1;`, [id],
+            (err, data) => {
+                if (err) {
+                    console.log('Friend lsit req error.')
+                    reject(err);
+                } else {
+                    console.log('Friend req list sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+}
+
+async function cancelFriendReq (id, friend_username) {
+
+    const friend_data = getUserdata(friend_username)
+    const friend_id = friend_data.id
+
+    await db.query(`DELETE FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, 
+        [id, friend_id], function(err) {
         if (err) {
-            console.log('Username update error.')
+            console.log('Error cancel friend request.')
             return console.error(err.message)
         }
-        console.log(`Username update`)
+        console.log(`cancel friend request success`)
+    })
+}
+
+async function acceptFriendReq (id, username) {
+
+    const user_data = await getUserdata(username)
+    const friendId = user_data.id
+
+    await db.query(`INSERT INTO public.friend_list (user_id, friend_id) VALUES ($1, $2)`, [id, friendId], 
+        function(err) {
+        if (err) {
+            console.log('Accept friend request Error.')
+            return console.error(err.message)
+        }
+        console.log(`Accept friend request success`)
+    })
+}
+
+async function denyFriendReq (id, friend_username) {
+
+    const friend_data = getUserdata(friend_username)
+    const friend_id = friend_data.id
+
+    await db.query(`DELETE FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, 
+        [friend_id, id], function(err) {
+        if (err) {
+            console.log('Error cancel friend request.')
+            return console.error(err.message)
+        }
+        console.log(`cancel friend request success`)
     })
 }
 
@@ -265,6 +316,9 @@ module.exports = {
     searchUsername,
     checkFriendReq,
     addFriend,
-    getFriendReq,
-    cancelFriendReq
+    getFriendReqedList,
+    cancelFriendReq,
+    getFriendReqList,
+    acceptFriendReq,
+    denyFriendReq
 }

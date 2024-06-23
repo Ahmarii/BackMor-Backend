@@ -1,22 +1,17 @@
 const fs = require('fs');
 const { Client } = require('pg');
+const secret = require('../secret.json')
 
-
-const x = process.env.db_cd
-
-const fixedCertificate = x.replace(/\\n/g, '\n');
-
-    
 // PostgreSQL connection configuration
 const config = {
     user: "avnadmin",
-    password: process.env.db_password,
+    password: secret.db_password,
     host: "cpre88-jayc.g.aivencloud.com",
     port: 14871,
     database: "maindb",
     ssl: {
         rejectUnauthorized: true,
-        ca: fixedCertificate
+        ca: secret.db_cd
         ,
     },
 };

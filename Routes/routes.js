@@ -98,4 +98,6 @@ router.post('/acceptFriendReq', acceptFriendReq )
 
 router.post('/denyFriendReq', denyFriendReq )
 
+//make friend status. remove friend sys
+
 module.exports = router;

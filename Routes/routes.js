@@ -34,7 +34,9 @@ const {
     acceptFriendReq,
     denyFriendReq,
     friendRequest,
-    friendReqList
+    friendReqList,
+    removeFriend,
+    getFriendList
 } = require('../controller/main_control.js')
 
 
@@ -83,7 +85,9 @@ router.post('/createEvent', createEvent )
 router.get('/friend', friendPage )
 
 router.post('/add_friend', add_friend )
-//
+
+router.get('/friend/AllFriend', ensureAuthenticated, getFriendList)
+
 router.get('/friend/friendList', ensureAuthenticated, friendRequestList )
 
 router.get('/friend/friendReqList', ensureAuthenticated, friendReqList )
@@ -98,6 +102,8 @@ router.post('/acceptFriendReq', acceptFriendReq )
 
 router.post('/denyFriendReq', denyFriendReq )
 
-//make friend status. remove friend sys
+router.post('/removeFriend', removeFriend)
+
+
 
 module.exports = router;

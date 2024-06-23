@@ -1,3 +1,4 @@
+const { unwatchFile } = require('fs');
 const utils = require('../utils/utils.js');
 const otpGenerator = require('otp-generator');
 const path = require('path')
@@ -14,30 +15,41 @@ async function sendImage (req, res) {
 }
 
 async function renderProfile (req, res) {
-    console.log('rendering Profile')
+    
     const data = await utils.getCustomerDataByUsername(req.params.name)
 
     // console.log(data)
-    const firstname = data.firstname;
-    const lastname = data.lastname;
+    try {
+        firstname = data.firstname;
+        lastname = data.lastname;
+    } catch (error) {
+        console.log(error)
+        res.redirect('/')
+    }
+
 
     const imgName = req.params.name
     if (req.params.name == req.user.username) {
         const user_data = await utils.getUserdataByid(req.user.id)
         const username = user_data.username
+        console.log('render Profile')
         res.render('profile', { firstname, lastname, imgName, username });
     } else {
         const username = req.params.name
         const friend_data = await utils.getUserdata(username)
         const friendId = friend_data.id
         const checker = await utils.checkFriendReq(req.user.id, friendId)
+        const friendCheck = await utils.checkFriendList(req.user.id, friendId)
 
-        if (checker) {
+        if (friendCheck) {
+            addFriendButton = 'Remove friend'
+        } else if (checker) {
             addFriendButton = 'Undo request'
         } else {
             addFriendButton = 'Add friend'
         }
-
+        console.log(addFriendButton)
+        console.log('render other Profile')
         res.render('other_profile', { firstname, lastname, imgName, username, addFriendButton })
     }
 
@@ -163,7 +175,7 @@ async function cancelFriendReq(req, res) {
 }
 
 async function friendPage (req, res) {
-    res.send('all friend')
+    res.render('friendPage')
 }
 
 async function friendRequested (req, res) {
@@ -186,6 +198,16 @@ async function acceptFriendReq (req, res) {
     res.send({ status: 'ok' });
 }
 
+async function removeFriend (req, res) {
+    const friendUsername = await req.body.username
+    await utils.removeFriend(req.user.id, friendUsername) 
+}
+
+async function getFriendList (req, res) {
+    console.log('getting friend list')
+    const friendList = await utils.getFriendList(req.user.id)
+    res.json(friendList)
+}
 
 module.exports = {
     sendImage,
@@ -210,5 +232,7 @@ module.exports = {
     friendRequested,
     friendReqList,
     acceptFriendReq,
-    denyFriendReq
+    denyFriendReq,
+    removeFriend,
+    getFriendList
 }

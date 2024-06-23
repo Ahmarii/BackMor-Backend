@@ -72,19 +72,32 @@
 
 const username = '{{username}}';
 
-console.log(username)
+console.log(username, 456245634562)
 
 function toggleFriendRequest() {
     const button = document.getElementById('friendButton');
-    if (button.textContent === 'Add friend') {
+    if (button.textContent === 'Remove friend') {
+        button.textContent = 'Add friend';
+        remove_friend();
+    } else if (button.textContent === 'Add friend') {
         button.textContent = 'Undo request';
-        console.log('change1')
         add_friend();
     } else {
         button.textContent = 'Add friend';
-        console.log('change2')
         undo_req();
     }
+}
+
+function remove_friend() {
+    console.log('remove')
+    console.log(username, 0101010)
+    fetch('/removeFriend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: username })
+    })
 }
 
 function undo_req() {

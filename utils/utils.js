@@ -198,7 +198,24 @@ async function checkFriendReq (id, friendId) {
                     console.log('Check friend req error.')
                     reject(err);
                 } else {
-                    console.log('Friend req check sended.')
+                    // console.log('Friend req check sended.')
+                    resolve(data.rows[0]);
+                }
+            }
+        )
+    })
+};
+
+async function checkFriendList (id, friendId) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.friend_list WHERE (user_id = $1 AND friend_id = $2) OR (user_id = $3 AND friend_id = $4)`, 
+            [id, friendId, friendId, id],
+            (err, data) => {
+                if (err) {
+                    console.log('Check friend list error.')
+                    reject(err);
+                } else {
+                    // console.log('Friend list check sended.')
                     resolve(data.rows[0]);
                 }
             }
@@ -230,7 +247,7 @@ async function getFriendReqedList (id) {
                     console.log('Friend lsit req error.')
                     reject(err);
                 } else {
-                    console.log('Friend req list sended.')
+                    // console.log('Friend req list sended.')
                     resolve(data.rows);
                 }
             }
@@ -246,7 +263,7 @@ async function getFriendReqList (id) {
                     console.log('Friend lsit req error.')
                     reject(err);
                 } else {
-                    console.log('Friend req list sended.')
+                    // console.log('Friend req list sended.')
                     resolve(data.rows);
                 }
             }
@@ -311,6 +328,40 @@ async function denyFriendReq (id, friend_username) {
     })
 }
 
+async function removeFriend (id, friend_username) {
+    const friend_data = await getUserdata(friend_username)
+    const friend_id = friend_data.id
+
+    await db.query(`DELETE FROM public.friend_list WHERE (user_id = $1 AND friend_id = $2) OR (user_id = $3 AND friend_id = $4);`,
+        [id, friend_id, friend_id, id], function(err) {
+            if (err) {
+                console.log('Error remove friend.')
+                return console.error(err.message)
+            }
+            console.log(`remove friend success`)
+        }
+    )
+}
+
+
+async function getFriendList (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT DISTINCT public.username_password.username FROM public.friend_list JOIN public.username_password ON public.username_password.id = CASE WHEN public.friend_list.user_id = $1 THEN public.friend_list.friend_id ELSE public.friend_list.user_id END WHERE public.friend_list.user_id = $2 OR public.friend_list.friend_id = $3;`,
+            [id, id, id],
+            (err, data) => {
+                if (err) {
+                    console.log('get Friend lsit error.')
+                    reject(err);
+                } else {
+                    // console.log('get Friend list sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+}
+
+
 module.exports = {
     getUserdata,
     getCustomerData,
@@ -332,5 +383,8 @@ module.exports = {
     cancelFriendReq,
     getFriendReqList,
     acceptFriendReq,
-    denyFriendReq
+    denyFriendReq,
+    checkFriendList,
+    removeFriend,
+    getFriendList
 }

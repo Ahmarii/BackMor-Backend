@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friend</title>
+
+</head>
+<body>
+    <h1>Friend page</h1>
+    <ul id="friendList"></ul>
+
+    <script>
+        async function fetchFriendlist() {
+            try {
+                const response = await fetch('/friend/AllFriend');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const friendReqList = await response.json();
+                console.log(friendReqList, 'nahee')
+                displayFriendList(friendReqList);
+
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        }
+
+        function displayFriendList(friendReqList) {
+            const listElement = document.getElementById('friendList');
+            listElement.innerHTML = '';  // Clear existing list items
+
+            friendReqList.forEach(request => {
+                const listItem = document.createElement('li');
+                listItem.id = `friend-${request.username}`;
+
+                const usernameDiv = document.createElement('div');
+                usernameDiv.textContent = request.username;
+                usernameDiv.className = 'username';
+
+                const RemoveFriendButton = document.createElement('button');
+                RemoveFriendButton.textContent = 'Remove friend';
+                RemoveFriendButton.className = 'Remove friend-button';
+                RemoveFriendButton.onclick = () => remove_friend(request.username);
+
+                const messageButton = document.createElement('button');
+                messageButton.textContent = 'message';
+                messageButton.className = 'message-button';
+
+                listItem.appendChild(usernameDiv);
+                listItem.appendChild(RemoveFriendButton);
+                listItem.appendChild(messageButton);
+                listElement.appendChild(listItem);
+            });
+        }
+
+        function remove_friend(username) {
+            removeFriendRequestFromUI(username)
+            console.log('remove')
+            console.log(username, 0101010)
+            fetch('/removeFriend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: username })
+            })
+        }
+        
+        function removeFriendRequestFromUI(username) {
+            const listItem = document.getElementById(`friend-${username}`);
+            if (listItem) {
+                listItem.remove();
+            }
+        }
+
+        // Fetch and display friend requests on page load
+        window.onload = () => {
+            fetchFriendlist();
+            // Set an interval to fetch friend requests every 10 seconds
+            {{!-- setInterval(fetchFriendlist, 10000);   --}}
+            // 10000 ms = 10 seconds
+        };
+
+    </script>
+</body>
+</html>

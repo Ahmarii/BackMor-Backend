@@ -82,7 +82,7 @@ router.post('/userSearch', searchUser )
 
 router.post('/createEvent', createEvent )
 
-router.get('/friend', friendPage )
+router.get('/friend', ensureAuthenticated, friendPage )
 
 router.post('/add_friend', add_friend )
 

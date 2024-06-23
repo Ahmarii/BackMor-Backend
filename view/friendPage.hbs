@@ -7,7 +7,7 @@
 
 </head>
 <body>
-    <h1>Friend page</h1>
+    <h1>Friend page list</h1>
     <ul id="friendList"></ul>
 
     <script>
@@ -38,6 +38,17 @@
                 usernameDiv.textContent = request.username;
                 usernameDiv.className = 'username';
 
+                const userImage = document.createElement('img');
+                userImage.src = `http://localhost:5000/image/${request.username}`;
+                userImage.alt = `${request.username}'s image`;
+                userImage.className = 'user-image';
+
+                userImage.style.maxWidth = '70px'; 
+                userImage.style.maxHeight = '70px';   
+                userImage.style.width = 'auto';       
+                userImage.style.height = 'auto';
+
+
                 const RemoveFriendButton = document.createElement('button');
                 RemoveFriendButton.textContent = 'Remove friend';
                 RemoveFriendButton.className = 'Remove friend-button';
@@ -47,6 +58,7 @@
                 messageButton.textContent = 'message';
                 messageButton.className = 'message-button';
 
+                listItem.appendChild(userImage);
                 listItem.appendChild(usernameDiv);
                 listItem.appendChild(RemoveFriendButton);
                 listItem.appendChild(messageButton);

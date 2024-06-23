@@ -5,6 +5,7 @@ const path = require('path')
 
 
 async function sendImage (req, res) {
+    // console.log('img api is called')
     const img = await utils.getProfileImageByName(req.params.name)
     if (!img) {
         res.sendFile(path.join(__dirname, `../public/default.jpg`))

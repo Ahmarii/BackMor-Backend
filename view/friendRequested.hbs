@@ -31,6 +31,16 @@
             friendReqList.forEach(request => {
                 const listItem = document.createElement('li');
 
+                const userImage = document.createElement('img');
+                userImage.src = `http://localhost:5000/image/${request.username}`;
+                userImage.alt = `${request.username}'s image`;
+                userImage.className = 'user-image';
+
+                userImage.style.maxWidth = '70px'; 
+                userImage.style.maxHeight = '70px';   
+                userImage.style.width = 'auto';       
+                userImage.style.height = 'auto';
+
                 const usernameDiv = document.createElement('div');
                 usernameDiv.textContent = request.username;
                 usernameDiv.className = 'username';
@@ -40,6 +50,7 @@
                 cancelButton.className = 'cancel-button';
                 cancelButton.onclick = () => cancel_req(request.username);
 
+                listItem.appendChild(userImage);
                 listItem.appendChild(usernameDiv);
                 listItem.appendChild(cancelButton);
                 listElement.appendChild(listItem);

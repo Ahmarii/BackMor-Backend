@@ -6,6 +6,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const utils = require('../utils/utils.js')
 const generatePassword = require('generate-password')
 const nodemailer = require('nodemailer');
+const secret = require('../secret.json')
 
 
 
@@ -30,8 +31,8 @@ passport.use(new LocalStrategy(async (username, password, done) => {
 
 
 passport.use(new GoogleStrategy({
-    clientID: process.env.google_ID,
-    clientSecret: process.env.google_secret,
+    clientID: secret.google_ID,
+    clientSecret: secret.google_secret,
     callbackURL: 'http://localhost:5000/auth_google/callback'
   },
   async (accessToken, refreshToken, profile, done) => {
@@ -63,8 +64,8 @@ passport.use(new GoogleStrategy({
 
 
 passport.use(new FacebookStrategy({
-    clientID: process.env.facebook_ID,
-    clientSecret: process.env.facebook_secret,
+    clientID: secret.facebook_ID,
+    clientSecret: secret.facebook_secret,
     callbackURL: 'http://localhost:5000/auth_facebook/callback',
     profileFields: ['id', 'displayName', 'photos', 'email']
     },

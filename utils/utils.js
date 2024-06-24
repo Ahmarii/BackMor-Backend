@@ -189,6 +189,44 @@ async function updateUsername(data, id) {
     })
 }
 
+// Event query
+
+function getAlltag () {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT tag_name, tag_emoji FROM public.tag`,
+            (err, data) => {
+                if (err) {
+                    console.log('get tag fail.')
+                    reject(err);
+                } else {
+                    console.log('get tag complete.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+function searchTag (tagName) {
+    return new Promise((resolve, reject) => {
+        console.log(tagName)
+        db.query(`SELECT tag_name, tag_emoji FROM public.tag WHERE tag_name ILIKE '%' || $1 || '%'`, [tagName],
+            (err, data) => {
+                if (err) {
+                    console.log('Search tag fail.')
+                    reject(err);
+                } else {
+                    console.log('Search tag complete.')
+                    console.log(data.rows)
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+
+// Friend query
 async function checkFriendReq (id, friendId) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, [id, friendId],
@@ -385,5 +423,7 @@ module.exports = {
     denyFriendReq,
     checkFriendList,
     removeFriend,
-    getFriendList
+    getFriendList,
+    getAlltag,
+    searchTag
 }

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+        }
+        #mapButton {
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+        #tagSearchResults li {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            margin-bottom: 1px;
+        }
+        #tagSearchResults li:hover {
+            background-color: #d0d0d0;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+</head>
+<body>
+    <h1>Create Event</h1>
+    <form id="eventForm">
+        <div class="form-group">
+            <label for="eventName">Event Name:</label>
+            <input type="text" id="eventName" name="eventName" required>
+        </div>
+        <div class="form-group">
+            <label for="eventDateTime">Date & Time:</label>
+            <input type="text" id="eventDateTime" name="eventDateTime" required>
+        </div>
+        <div class="form-group">
+            <label for="eventPlace">Place:</label>
+            <div id="mapButton">Choose Place</div>
+            <input type="text" id="eventPlace" name="eventPlace" readonly required>
+        </div>
+        <div class="form-group">
+            <label for="maxPeople">Max People:</label>
+            <input type="number" id="maxPeople" name="maxPeople" required>
+        </div>
+        <div class="form-group">
+            <label for="eventDetail">Event Detail:</label>
+            <textarea id="eventDetail" name="eventDetail" rows="5" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="tagSearch">Event Tags:</label>
+            <input type="text" id="tagSearch" placeholder="Search...">
+            <div id="dropdown" ></div>
+            <input type="text" id="eventTags" name="eventTags" readonly required>
+        </div>
+        <button type="submit">Create Event</button>
+    </form>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            flatpickr('#eventDateTime', {
+                enableTime: true,
+                dateFormat: 'Y-m-d H:i'
+            });
+
+            document.getElementById('mapButton').addEventListener('click', fetchMapDetails);
+        });
+
+        const searchInput = document.getElementById('tagSearch');
+        const dropdown = document.getElementById('dropdown');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            console.log(query)
+            dropdown.innerHTML = '';
+            if (query) {
+                fetch('/tagSearch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                })
+                .then(response => response.json())
+                .then(filteredSuggestions => {
+                    filteredSuggestions.forEach(suggestion => {
+                        const item = document.createElement('div');
+                        item.classList.add('dropdown-item');
+                        item.textContent = ` ${suggestion.tag_emoji} ${suggestion.tag_name}`;
+                        item.addEventListener('click', () => {
+                            console.log(item.textContent)
+                            selectTag(suggestion.tag_emoji, suggestion.tag_name)
+                        })
+                        dropdown.appendChild(item);
+                    })
+                    dropdown.style.display = 'block';
+                })
+            } else {
+                dropdown.style.display = 'none';
+            }
+        })
+
+        function selectTag(tagEmoji, tagName) {
+            const tagInput = document.getElementById('eventTags');
+            const tags = tagInput.value ? tagInput.value.split(', ') : [];
+            const tagText = `${tagEmoji} ${tagName}`;
+            if (!tags.includes(tagText)) {
+                tags.push(tagText);
+                tagInput.value = tags.join(', ');
+            }
+            const searchInput = document.getElementById('tagSearch');
+            searchInput.value = '';
+
+            // Hide the dropdown after selecting an item
+            const dropdown = document.getElementById('dropdown');
+            dropdown.style.display = 'none';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== searchInput) {
+                dropdown.style.display = 'none'; // Close dropdown if clicked outside
+            }
+        });
+
+
+        async function fetchMapDetails() {
+            try {
+                const response = await fetch('http://localhost:5000/map');
+                const mapDetails = await response.json();
+                document.getElementById('eventPlace').value = mapDetails.details;
+            } catch (error) {
+                console.error('Error fetching map details:', error);
+            }
+        }
+
+
+        document.getElementById('eventForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            // Handle form submission here
+            alert('Event Created!');
+        });
+    </script>
+</body>
+</html>

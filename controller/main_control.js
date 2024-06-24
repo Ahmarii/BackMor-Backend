@@ -152,7 +152,21 @@ async function UploadProfileImg (req, res) {
 // Create Event function.
 
 async function createEvent (req, res) {
-    res.send('pap')
+    res.render('createEvent')
+}
+
+async function getAlltag (req, res) {
+    const tagList = await utils.getAlltag()
+    console.log(tagList)
+    res.json(tagList)
+}
+
+async function searchTag (req, res) {
+    const tagName = await req.body.query
+    const tagQuery= await utils.searchTag(tagName)
+    // const tagList = tagQuery.map(result => [result.tag_name, result.tag_emoji]);
+    // console.log(tagList)
+    res.json(tagQuery)
 }
 
 // Friend Function
@@ -241,5 +255,7 @@ module.exports = {
     acceptFriendReq,
     denyFriendReq,
     removeFriend,
-    getFriendList
+    getFriendList,
+    getAlltag,
+    searchTag
 }

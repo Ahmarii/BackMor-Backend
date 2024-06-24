@@ -4,17 +4,6 @@ const otpGenerator = require('otp-generator');
 const path = require('path')
 
 
-async function sendImage (req, res) {
-    // console.log('img api is called')
-    const img = await utils.getProfileImageByName(req.params.name)
-    if (!img) {
-        res.sendFile(path.join(__dirname, `../public/default.jpg`))
-    } else {
-        res.sendFile(path.join(__dirname, `../public/${img.images_name}`))
-    }
-
-}
-
 async function renderProfile (req, res) {
     
     const data = await utils.getCustomerDataByUsername(req.params.name)
@@ -78,6 +67,8 @@ async function profileUpdate (req, res) {
     }
 }
 
+// Login Regis function 
+
 function renderRegister (req, res) {
     const prompt = 'register';
     const command = 'submit';
@@ -123,6 +114,25 @@ function renderFailLogin (req, res) {
     res.send('login failed.')
 }
 
+function logout (req, res) {
+    req.logout((err) => {
+      if (err) { return next(err); }
+      res.redirect('/login');
+    });
+}
+
+// Send img api
+async function sendImage (req, res) {
+    // console.log('img api is called')
+    const img = await utils.getProfileImageByName(req.params.name)
+    if (!img) {
+        res.sendFile(path.join(__dirname, `../public/default.jpg`))
+    } else {
+        res.sendFile(path.join(__dirname, `../public/${img.images_name}`))
+    }
+
+}
+
 const imageUpload  = utils.upload.single('image')
 
 async function UploadProfileImg (req, res) {
@@ -139,16 +149,13 @@ async function UploadProfileImg (req, res) {
     }
 }
 
-function logout (req, res) {
-    req.logout((err) => {
-      if (err) { return next(err); }
-      res.redirect('/login');
-    });
-}
+// Create Event function.
 
 async function createEvent (req, res) {
     res.send('pap')
 }
+
+// Friend Function
 
 async function add_friend (req, res) {
     console.log('add friend press')
@@ -158,12 +165,11 @@ async function add_friend (req, res) {
 
 }
 
-async function friendRequestList(req, res) {
+async function friendRequestedList(req, res) {
     const friendReqedList = await utils.getFriendReqedList(req.user.id)
     res.json(friendReqedList)
 }
 
-//friend requested list
 async function friendReqList(req, res) {
     const friendReqList = await utils.getFriendReqList(req.user.id)
     res.json(friendReqList)
@@ -229,7 +235,7 @@ module.exports = {
     friendRequest,
     cancelFriendReq,
     friendPage,
-    friendRequestList,
+    friendRequestedList,
     friendRequested,
     friendReqList,
     acceptFriendReq,

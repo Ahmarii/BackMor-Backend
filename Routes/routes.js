@@ -27,7 +27,7 @@ const {
     searchUser,
     createEvent,
     add_friend,
-    friendRequestList,
+    friendRequestedList,
     cancelFriendReq,
     friendPage,
     friendRequested,
@@ -88,7 +88,7 @@ router.post('/add_friend', add_friend )
 
 router.get('/friend/AllFriend', ensureAuthenticated, getFriendList)
 
-router.get('/friend/friendList', ensureAuthenticated, friendRequestList )
+router.get('/friend/friendRequestedList', ensureAuthenticated, friendRequestedList )
 
 router.get('/friend/friendReqList', ensureAuthenticated, friendReqList )
 

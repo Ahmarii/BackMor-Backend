@@ -1,9 +1,11 @@
+const { unwatchFile } = require('fs');
 const utils = require('../utils/utils.js');
 const otpGenerator = require('otp-generator');
 const path = require('path')
 
 
 async function sendImage (req, res) {
+    // console.log('img api is called')
     const img = await utils.getProfileImageByName(req.params.name)
     if (!img) {
         res.sendFile(path.join(__dirname, `../public/default.jpg`))
@@ -14,25 +16,52 @@ async function sendImage (req, res) {
 }
 
 async function renderProfile (req, res) {
+    
     const data = await utils.getCustomerDataByUsername(req.params.name)
 
     // console.log(data)
-    const firstname = data.firstname;
-    const lastname = data.lastname;
+    try {
+        firstname = data.firstname;
+        lastname = data.lastname;
+    } catch (error) {
+        console.log(error)
+        res.redirect('/')
+    }
 
-    const name = req.params.name
 
-
+    const imgName = req.params.name
     if (req.params.name == req.user.username) {
         const user_data = await utils.getUserdataByid(req.user.id)
         const username = user_data.username
-        res.render('profile', { firstname, lastname, name, username });
+        console.log('render Profile')
+        res.render('profile', { firstname, lastname, imgName, username });
     } else {
-        res.render('other_profile', { firstname, lastname, name })
+        const username = req.params.name
+        const friend_data = await utils.getUserdata(username)
+        const friendId = friend_data.id
+        const checker = await utils.checkFriendReq(req.user.id, friendId)
+        const friendCheck = await utils.checkFriendList(req.user.id, friendId)
+
+        if (friendCheck) {
+            addFriendButton = 'Remove friend'
+        } else if (checker) {
+            addFriendButton = 'Undo request'
+        } else {
+            addFriendButton = 'Add friend'
+        }
+        console.log(addFriendButton)
+        console.log('render other Profile')
+        res.render('other_profile', { firstname, lastname, imgName, username, addFriendButton })
     }
 
 }
 
+async function searchUser (req, res) {
+    const username = await req.body.query
+    const usernameList = await utils.searchUsername(username)
+    const usernames = usernameList.map(result => result.username);
+    res.json(usernames)
+}
 
 async function profileUpdate (req, res) {
     const formdata = req.body;
@@ -117,6 +146,70 @@ function logout (req, res) {
     });
 }
 
+async function createEvent (req, res) {
+    res.send('pap')
+}
+
+async function add_friend (req, res) {
+    console.log('add friend press')
+    const friend_username = await req.body
+    const friendId = await utils.getUserdata(friend_username.username)
+    utils.addFriend(req.user.id, friendId.id)
+
+}
+
+async function friendRequestList(req, res) {
+    const friendReqedList = await utils.getFriendReqedList(req.user.id)
+    res.json(friendReqedList)
+}
+
+//friend requested list
+async function friendReqList(req, res) {
+    const friendReqList = await utils.getFriendReqList(req.user.id)
+    res.json(friendReqList)
+}
+
+async function cancelFriendReq(req, res) {
+    const username = req.body.username
+    await utils.cancelFriendReq(req.user.id, username)
+    res.send({ status: 'ok' });
+}
+
+async function friendPage (req, res) {
+    res.render('friendPage')
+}
+
+async function friendRequested (req, res) {
+    res.render('friendRequested')
+}
+
+function friendRequest (req, res) {
+    res.render('friendRequest')
+}
+
+async function denyFriendReq (req, res) {
+    const username = req.body.username
+    await utils.denyFriendReq(req.user.id, username)
+    res.send({ status: 'ok' });
+}
+
+async function acceptFriendReq (req, res) {
+    const username = req.body.username
+    await utils.acceptFriendReq(req.user.id, username)
+    res.send({ status: 'ok' });
+}
+
+async function removeFriend (req, res) {
+    const friendUsername = await req.body.username
+    await utils.removeFriend(req.user.id, friendUsername) 
+}
+
+async function getFriendList (req, res) {
+    console.log('getting friend list')
+    const friendList = await utils.getFriendList(req.user.id)
+    res.json(friendList)
+}
+
 module.exports = {
     sendImage,
     renderProfile,
@@ -129,5 +222,18 @@ module.exports = {
     renderFailLogin,
     imageUpload,
     UploadProfileImg,
-    logout
+    logout,
+    searchUser,
+    createEvent,
+    add_friend,
+    friendRequest,
+    cancelFriendReq,
+    friendPage,
+    friendRequestList,
+    friendRequested,
+    friendReqList,
+    acceptFriendReq,
+    denyFriendReq,
+    removeFriend,
+    getFriendList
 }

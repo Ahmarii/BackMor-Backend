@@ -2,14 +2,54 @@
 <html>
 <head>
     <title>Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .search-container {
+            position: relative;
+            width: 300px;
+            margin: 50px auto;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 </head>
 <body>
 
+<div class="search-container">
+    <input type="text" id="search" class="search-input" placeholder="Search...">
+    <div id="dropdown" class="dropdown"></div>
+</div>
 
 <div>
-    <img src="http://localhost:5000/image/{{name}}" alt="Image" style="max-width: 360px; max-height: 360px; width: auto; height: auto;">
+    <img src="http://localhost:5000/image/{{imgName}}" alt="Image" style="max-width: 360px; max-height: 360px; width: auto; height: auto;">
+</div><br><br>
 
-</div>
 
 <h2>Upload a File</h2>
 <form action="/upload" method="POST" enctype="multipart/form-data">
@@ -34,10 +74,63 @@
 <button type="button" onclick="toggleEdit()">Edit</button>
 <button type="button" onclick="resetForm()">reset</button><br><br>
 
-
-
 <script>
+    
+const searchInput = document.getElementById('search');
+const dropdown = document.getElementById('dropdown');
 
+searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    console.log(query)
+    dropdown.innerHTML = '';
+    if (query) {
+
+        fetch('/userSearch', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ query })
+        })
+        .then(response => response.json())
+        .then(filteredSuggestions => {
+                filteredSuggestions.forEach(suggestion => {
+                    const item = document.createElement('div');
+                    item.classList.add('dropdown-item');
+                    item.textContent = suggestion;
+                    item.addEventListener('click', () => {
+                        console.log(item.textContent)
+                        fetch(`/profile/${item.textContent}`)
+                        .then(response => {
+                            if (response.ok) {
+                                return response.url;
+                            } else {
+                                throw new Error('No response.')
+                            }
+                        })
+                        .then(redirectUrl => {
+                            window.location.href = redirectUrl
+                        })
+                        .catch(error => {
+                            console.error('Error when reaching profile.', error)
+                        })
+    
+                    });
+                    dropdown.appendChild(item);
+                });
+                dropdown.style.display = filteredSuggestions.length ? 'block' : 'none';
+        })
+
+    } else {
+        dropdown.style.display = 'none';
+    }
+});
+
+document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
 
 function toggleEdit() {
     var formElements = document.getElementById("editableForm").elements;

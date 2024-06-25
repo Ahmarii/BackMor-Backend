@@ -236,6 +236,38 @@ async function createEvent(eventObj, id) {
     })
 }
 
+async function getMyEvent (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event WHERE event_creator = $1`, [id],
+            (err, data) => {
+                if (err) {
+                    console.log('My event error.')
+                    reject(err);
+                } else {
+                    console.log('My event sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+async function getEvent (event_id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event WHERE event_id = $1`, [event_id],
+            (err, data) => {
+                if (err) {
+                    console.log('get event error.')
+                    reject(err);
+                } else {
+                    console.log('get event sended.')
+                    resolve(data.rows[0]);
+                }
+            }
+        )
+    })
+}
+
 
 // Friend query
 async function checkFriendReq (id, friendId) {
@@ -437,5 +469,7 @@ module.exports = {
     getFriendList,
     getAlltag,
     searchTag,
-    createEvent
+    createEvent,
+    getMyEvent,
+    getEvent
 }

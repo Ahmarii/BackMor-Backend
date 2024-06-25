@@ -178,7 +178,33 @@ async function eventSubmit (req, res) {
 }
 
 async function myEvent (req, res) {
-    res.send('All my event.')
+    res.render('myEventpage')
+}
+
+async function myEventList (req, res) {
+    const eventList = await utils.getMyEvent(req.user.id)
+    console.log(eventList)
+    res.json(eventList)
+}
+
+async function eventPage (req, res) {
+    res.send('All event')
+}
+
+async function eventDetail (req, res) {
+    const eventId = req.query.eventId
+    if (eventId) {
+        const event = await utils.getEvent(eventId);
+        res.render('eventDetail', {
+            eventName: event.event_name,
+            eventDateTime: event.date_time,
+            maxPeople: event.max_people,
+            eventDetail: event.event_detail,
+            eventTag: event.event_tag
+        });
+    } else {
+        res.status(400).json({ error: 'Event ID is required' });
+    }
 }
 
 // Friend Function
@@ -271,5 +297,8 @@ module.exports = {
     getAlltag,
     searchTag,
     eventSubmit,
-    myEvent
+    myEvent,
+    myEventList,
+    eventPage,
+    eventDetail
 }

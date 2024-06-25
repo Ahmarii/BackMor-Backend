@@ -40,7 +40,10 @@ const {
     getAlltag,
     searchTag,
     eventSubmit,
-    myEvent
+    myEvent,
+    eventPage,
+    myEventList,
+    eventDetail
 } = require('../controller/main_control.js')
 
 
@@ -85,15 +88,21 @@ router.get('/logout', logout );
 router.post('/userSearch', searchUser )
 
 // Event Route
-router.get('/createEvent', ensureAuthenticated, createEvent )
+router.get('/event/createEvent', ensureAuthenticated, createEvent )
 
 router.get('/tag', getAlltag )
 
 router.post('/tagSearch', searchTag )
 
-router.post('/eventSubmit', eventSubmit)
+router.post('/eventSubmit', eventSubmit )
 
-router.get('/myEvent', ensureAuthenticated, myEvent)
+router.get('/myEventList', ensureAuthenticated, myEventList )
+
+router.get('/event/myEvent', ensureAuthenticated, myEvent )
+
+router.get('/event/event_watch', ensureAuthenticated, eventDetail )
+
+router.get('/event/eventPage', ensureAuthenticated, eventPage )
 
 // Friend Route
 router.get('/friend', ensureAuthenticated, friendPage )

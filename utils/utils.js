@@ -209,7 +209,7 @@ function getAlltag () {
 
 function searchTag (tagName) {
     return new Promise((resolve, reject) => {
-        console.log(tagName)
+        // console.log(tagName)
         db.query(`SELECT tag_name, tag_emoji FROM public.tag WHERE tag_name ILIKE '%' || $1 || '%'`, [tagName],
             (err, data) => {
                 if (err) {
@@ -217,13 +217,24 @@ function searchTag (tagName) {
                     reject(err);
                 } else {
                     console.log('Search tag complete.')
-                    console.log(data.rows)
+                    // console.log(data.rows)
                     resolve(data.rows);
                 }
             }
         )
     })
 };
+
+async function createEvent(eventObj, id) {
+    await db.query(`INSERT INTO public.event (event_name, date_time, place, max_people, event_detail, event_tag, event_creator) VALUES ($1, $2, 'morchit', $3, $4, $5, $6)`,
+        [eventObj.eventName, eventObj.eventDateTime, eventObj.maxPeople, eventObj.eventDetail, eventObj.eventTags, id], function(err) {
+        if (err) {
+            console.log('create event error.')
+            return console.error(err.message)
+        }
+        console.log(`event created`)
+    })
+}
 
 
 // Friend query
@@ -425,5 +436,6 @@ module.exports = {
     removeFriend,
     getFriendList,
     getAlltag,
-    searchTag
+    searchTag,
+    createEvent
 }

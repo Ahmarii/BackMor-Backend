@@ -169,6 +169,18 @@ async function searchTag (req, res) {
     res.json(tagQuery)
 }
 
+async function eventSubmit (req, res) {
+    // console.log('event submited')
+    const eventData = req.body
+    await utils.createEvent(eventData, req.user.id)
+    res.redirect('/myEvent')
+
+}
+
+async function myEvent (req, res) {
+    res.send('All my event.')
+}
+
 // Friend Function
 
 async function add_friend (req, res) {
@@ -257,5 +269,7 @@ module.exports = {
     removeFriend,
     getFriendList,
     getAlltag,
-    searchTag
+    searchTag,
+    eventSubmit,
+    myEvent
 }

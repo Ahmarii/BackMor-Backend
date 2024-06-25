@@ -91,7 +91,7 @@
             <div id="dropdown" ></div>
             <input type="text" id="eventTags" name="eventTags" required>
         </div>
-        <button type="submit">Create Event</button>
+        <button type="submit">Create Event !</button>
     </form>
 
 
@@ -176,8 +176,29 @@
 
         document.getElementById('eventForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            // Handle form submission here
             alert('Event Created!');
+
+            const formData = new FormData(event.target);
+            console.log(formData)
+            const formObject = {};
+            formData.forEach((value, key) => {
+                formObject[key] = value;
+            });
+
+            fetch('/eventSubmit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject),
+            })
+            .then(response => response.url)
+            .then(redirectUrl => {
+                window.location.href = redirectUrl
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>

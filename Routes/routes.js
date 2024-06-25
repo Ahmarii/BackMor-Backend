@@ -38,7 +38,9 @@ const {
     removeFriend,
     getFriendList,
     getAlltag,
-    searchTag
+    searchTag,
+    eventSubmit,
+    myEvent
 } = require('../controller/main_control.js')
 
 
@@ -83,11 +85,15 @@ router.get('/logout', logout );
 router.post('/userSearch', searchUser )
 
 // Event Route
-router.get('/createEvent', createEvent )
+router.get('/createEvent', ensureAuthenticated, createEvent )
 
 router.get('/tag', getAlltag )
 
 router.post('/tagSearch', searchTag )
+
+router.post('/eventSubmit', eventSubmit)
+
+router.get('/myEvent', ensureAuthenticated, myEvent)
 
 // Friend Route
 router.get('/friend', ensureAuthenticated, friendPage )

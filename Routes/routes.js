@@ -43,7 +43,11 @@ const {
     myEvent,
     eventPage,
     myEventList,
-    eventDetail
+    eventDetail,
+    allEventList,
+    removeEvent,
+    joinEvent,
+    joinEventCheck
 } = require('../controller/main_control.js')
 
 
@@ -102,7 +106,15 @@ router.get('/event/myEvent', ensureAuthenticated, myEvent )
 
 router.get('/event/event_watch', ensureAuthenticated, eventDetail )
 
-router.get('/event/eventPage', ensureAuthenticated, eventPage )
+router.get('/event', ensureAuthenticated, eventPage )
+
+router.get('/allEventList', allEventList )
+
+router.post('/removeEvent', removeEvent )
+
+router.post('/joinEvent', joinEvent )
+
+router.get('/event/joinEventCheck', joinEventCheck )
 
 // Friend Route
 router.get('/friend', ensureAuthenticated, friendPage )

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Events</title>
+    <title>Events</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,7 +15,6 @@
             margin-bottom: 10px;
             cursor: pointer;
             background-color: #f9f9f9;
-            position: relative;
         }
         .event-box:hover {
             background-color: #e9e9e9;
@@ -28,31 +27,18 @@
             font-size: 14px;
             color: #666;
         }
-        .remove-event-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        .remove-event-button:hover {
-            background-color: #ff0000;
-        }
     </style>
 </head>
 <body>
-    <h1>My Events</h1>
+    <h1>Events</h1>
     <div id="eventsContainer"></div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('/myEventList')
+            fetch('/allEventList')
                 .then(response => response.json())
                 .then(events => {
-                    console.log(events);
+                    console.log(events)
                     const eventsContainer = document.getElementById('eventsContainer');
                     events.forEach(event => {
                         const eventBox = document.createElement('div');
@@ -67,17 +53,32 @@
                         eventDate.className = 'event-date';
                         eventDate.textContent = event.date_time;
 
-                        const removeEventButton = document.createElement('button');
-                        removeEventButton.textContent = 'Remove Event';
-                        removeEventButton.className = 'remove-event-button';
-                        removeEventButton.onclick = (e) => {
-                            e.stopPropagation();
-                            removeEvent(event.event_id, eventBox);
+
+                        const joinEventButton = document.createElement('button');
+                        joinEventButton.textContent = 'Join Event !'
+                        joinEventButton.className = 'joinEventButton'
+                        joinEventButton.onclick = () => {
+                            joinEvent(event.event_id);
                         };
 
                         eventBox.appendChild(eventName);
                         eventBox.appendChild(eventDate);
-                        eventBox.appendChild(removeEventButton);
+
+                        fetch(`/event/joinEventCheck?eventId=${event.event_id}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.isJoined) {
+                                const joinedText = document.createElement('div');
+                                joinedText.className = 'joinedText';
+                                joinedText.textContent = 'Joined';
+                                eventBox.appendChild(joinedText);
+                            } else {
+                                eventBox.appendChild(joinEventButton);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking join status:', error);
+                        });
 
                         eventBox.addEventListener('click', () => {
                             window.location.href = `/event/event_watch?eventId=${event.event_id}`;
@@ -91,9 +92,9 @@
                 });
         });
 
-        async function removeEvent(event_id, eventBox) {
+        async function joinEvent(event_id) {
             try {
-                const response = await fetch('/removeEvent', {
+                const response = await fetch('/joinEvent', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -101,15 +102,15 @@
                     body: JSON.stringify({ event_id: event_id })
                 });
                 if (response.ok) {
-                    console.log(`Event id ${event_id} removed`);
-                    eventBox.remove();
+                    console.log(`Event id ${event_id} joined`);
                 } else {
-                    console.error('Failed to remove event');
+                    console.error('Failed to join event');
                 }
             } catch (error) {
                 console.error('Error:', error);
             }
         }
+        
     </script>
 </body>
 </html>

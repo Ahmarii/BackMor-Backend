@@ -1,4 +1,3 @@
-const { unwatchFile } = require('fs');
 const utils = require('../utils/utils.js');
 const otpGenerator = require('otp-generator');
 const path = require('path')
@@ -173,7 +172,7 @@ async function eventSubmit (req, res) {
     // console.log('event submited')
     const eventData = req.body
     await utils.createEvent(eventData, req.user.id)
-    res.redirect('/myEvent')
+    res.redirect('/event/myEvent')
 
 }
 
@@ -183,18 +182,24 @@ async function myEvent (req, res) {
 
 async function myEventList (req, res) {
     const eventList = await utils.getMyEvent(req.user.id)
-    console.log(eventList)
+    // console.log(eventList)
+    res.json(eventList)
+}
+
+async function allEventList (req, res) {
+    const eventList = await utils.getAllevent()
     res.json(eventList)
 }
 
 async function eventPage (req, res) {
-    res.send('All event')
+    res.render('AlleventPage')
 }
 
 async function eventDetail (req, res) {
     const eventId = req.query.eventId
     if (eventId) {
         const event = await utils.getEvent(eventId);
+        // console.log(event)
         res.render('eventDetail', {
             eventName: event.event_name,
             eventDateTime: event.date_time,
@@ -204,6 +209,33 @@ async function eventDetail (req, res) {
         });
     } else {
         res.status(400).json({ error: 'Event ID is required' });
+    }
+}
+
+async function removeEvent (req, res) {
+    const eventId = req.body.event_id
+    await utils.removeEvent(eventId)
+    res.send({ status: 'ok' });
+}
+
+async function joinEvent (req, res) {
+    const eventId = req.body.event_id
+    try {
+        await utils.joinEvent(eventId, req.user.id)
+    } catch (err) {
+        console.log(err)
+        res.send({ status: 'error' })
+    }
+    res.send({ status: 'ok' });
+}
+
+async function joinEventCheck (req, res) {
+    const eventId = req.query.eventId
+    const checker = await utils.joinEventCheck(eventId, req.user.id)
+    if (checker) {
+        res.json({isJoined: true})
+    } else {
+        res.json({isJoined: false})
     }
 }
 
@@ -300,5 +332,9 @@ module.exports = {
     myEvent,
     myEventList,
     eventPage,
-    eventDetail
+    eventDetail,
+    allEventList,
+    removeEvent,
+    joinEvent,
+    joinEventCheck
 }

@@ -179,7 +179,7 @@
             alert('Event Created!');
 
             const formData = new FormData(event.target);
-            console.log(formData)
+            {{!-- console.log(formData.eventDetail) --}}
             const formObject = {};
             formData.forEach((value, key) => {
                 formObject[key] = value;

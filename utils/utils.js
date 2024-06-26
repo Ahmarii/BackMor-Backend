@@ -3,7 +3,6 @@ const multer = require('multer');
 const path = require('path');
 
 
-
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'public');
@@ -190,6 +189,187 @@ async function updateUsername(data, id) {
     })
 }
 
+// Event query
+
+function getAlltag () {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT tag_name, tag_emoji FROM public.tag`,
+            (err, data) => {
+                if (err) {
+                    console.log('get tag fail.')
+                    reject(err);
+                } else {
+                    console.log('get tag complete.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+function searchTag (tagName) {
+    return new Promise((resolve, reject) => {
+        // console.log(tagName)
+        db.query(`SELECT tag_name, tag_emoji FROM public.tag WHERE tag_name ILIKE '%' || $1 || '%'`, [tagName],
+            (err, data) => {
+                if (err) {
+                    console.log('Search tag fail.')
+                    reject(err);
+                } else {
+                    console.log('Search tag complete.')
+                    // console.log(data.rows)
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+async function createEvent(eventObj, id) {
+    try {
+        // Insert event and get the new event_id
+        const eventResult = await db.query(
+            `INSERT INTO public.event (event_name, date_time, place, max_people, event_detail, event_tag, event_creator) 
+             VALUES ($1, $2, 'morchit', $3, $4, $5, $6) RETURNING event_id`,
+            [eventObj.eventName, eventObj.eventDateTime, eventObj.maxPeople, eventObj.eventDetail, eventObj.eventTags, id]
+        );
+
+        const insertedId = eventResult.rows[0].event_id; // Get the new event ID
+        // console.log(`Event created with ID: ${insertedId}`);
+
+        // Insert into event_member table
+        await db.query(
+            `INSERT INTO public.event_member (id_of_event, user_id) VALUES ($1, $2)`,
+            [insertedId, id]
+        );
+        // console.log(`User ID ${id} added to event ID ${insertedId}`);
+        
+    } catch (err) {
+        console.error('Error:', err.message);
+        throw err; // Optionally re-throw the error to handle it higher up if needed
+    }
+}
+
+
+async function removeEvent (event_id) {
+
+    await db.query(`DELETE FROM public.event_member WHERE id_of_event = $1`, [event_id], function(err) {
+        if (err) {
+            console.log('remove event member error.')
+            return console.error(err.message)
+        }
+        console.log(`remove event member success.`)
+    })
+
+    await db.query(`DELETE FROM public.event WHERE event_id = $1`, [event_id], function(err) {
+        if (err) {
+            console.log('remove event error.')
+            return console.error(err.message)
+        }
+        console.log(`remove event success.`)
+    })
+
+}
+
+async function joinEvent (event_id, user_id) {
+    const checker = await joinEventCheck(event_id, user_id)
+
+    if (checker) {
+        return console.error('Already Join.')
+    } else {
+        await db.query(`INSERT INTO public.event_member (id_of_event, user_id) VALUES ($1, $2)`, [event_id, user_id], function(err) {
+            if (err) {
+                console.log('join event error.')
+                return console.error(err.message)
+            }
+            console.log(`join event success.`)
+        })
+    }
+}
+
+async function joinEventCheck (event_id, user_id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event_member WHERE id_of_event = $1 AND user_id = $2`, [event_id, user_id],
+            (err, data) => {
+                if (err) {
+                    console.log('joinEventCheck error.')
+                    reject(err);
+                } else {
+                    console.log('joinEventCheck success.')
+                    resolve(data.rows[0]);
+                }
+            }
+        )
+    })
+}
+
+async function getEventMember (event_id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event WHERE event_creator = $1`, [id],
+            (err, data) => {
+                if (err) {
+                    console.log('My event error.')
+                    reject(err);
+                } else {
+                    console.log('My event sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+}
+
+// to do next
+async function getMyEvent (id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event WHERE event_creator = $1`, [id],
+            (err, data) => {
+                if (err) {
+                    console.log('My event error.')
+                    reject(err);
+                } else {
+                    console.log('My event sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+};
+
+async function getAllevent () {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event`,
+            (err, data) => {
+                if (err) {
+                    console.log('get all event error.')
+                    reject(err);
+                } else {
+                    console.log('get all event sended.')
+                    resolve(data.rows);
+                }
+            }
+        )
+    })
+}
+
+async function getEvent (event_id) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM public.event WHERE event_id = $1`, [event_id],
+            (err, data) => {
+                if (err) {
+                    console.log('get event error.')
+                    reject(err);
+                } else {
+                    console.log('get event sended.')
+                    resolve(data.rows[0]);
+                }
+            }
+        )
+    })
+}
+
+
+// Friend query
 async function checkFriendReq (id, friendId) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.friend_req WHERE user_id = $1 AND friend_req = $2`, [id, friendId],
@@ -386,5 +566,14 @@ module.exports = {
     denyFriendReq,
     checkFriendList,
     removeFriend,
-    getFriendList
+    getFriendList,
+    getAlltag,
+    searchTag,
+    createEvent,
+    getMyEvent,
+    getEvent,
+    getAllevent,
+    removeEvent,
+    joinEventCheck,
+    joinEvent
 }

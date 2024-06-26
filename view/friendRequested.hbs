@@ -13,7 +13,7 @@
     <script>
         async function fetchFriendRequests() {
             try {
-                const response = await fetch('/friend/friendList');
+                const response = await fetch('/friend/friendRequestedList');
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }

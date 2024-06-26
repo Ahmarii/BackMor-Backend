@@ -27,7 +27,7 @@ const {
     searchUser,
     createEvent,
     add_friend,
-    friendRequestList,
+    friendRequestedList,
     cancelFriendReq,
     friendPage,
     friendRequested,
@@ -36,7 +36,18 @@ const {
     friendRequest,
     friendReqList,
     removeFriend,
-    getFriendList
+    getFriendList,
+    getAlltag,
+    searchTag,
+    eventSubmit,
+    myEvent,
+    eventPage,
+    myEventList,
+    eventDetail,
+    allEventList,
+    removeEvent,
+    joinEvent,
+    joinEventCheck
 } = require('../controller/main_control.js')
 
 
@@ -80,15 +91,39 @@ router.get('/logout', logout );
 
 router.post('/userSearch', searchUser )
 
-router.post('/createEvent', createEvent )
+// Event Route
+router.get('/event/createEvent', ensureAuthenticated, createEvent )
 
+router.get('/tag', getAlltag )
+
+router.post('/tagSearch', searchTag )
+
+router.post('/eventSubmit', eventSubmit )
+
+router.get('/myEventList', ensureAuthenticated, myEventList )
+
+router.get('/event/myEvent', ensureAuthenticated, myEvent )
+
+router.get('/event/event_watch', ensureAuthenticated, eventDetail )
+
+router.get('/event', ensureAuthenticated, eventPage )
+
+router.get('/allEventList', allEventList )
+
+router.post('/removeEvent', removeEvent )
+
+router.post('/joinEvent', joinEvent )
+
+router.get('/event/joinEventCheck', joinEventCheck )
+
+// Friend Route
 router.get('/friend', ensureAuthenticated, friendPage )
 
 router.post('/add_friend', add_friend )
 
 router.get('/friend/AllFriend', ensureAuthenticated, getFriendList)
 
-router.get('/friend/friendList', ensureAuthenticated, friendRequestList )
+router.get('/friend/friendRequestedList', ensureAuthenticated, friendRequestedList )
 
 router.get('/friend/friendReqList', ensureAuthenticated, friendReqList )
 
@@ -103,7 +138,5 @@ router.post('/acceptFriendReq', acceptFriendReq )
 router.post('/denyFriendReq', denyFriendReq )
 
 router.post('/removeFriend', removeFriend)
-
-
 
 module.exports = router;

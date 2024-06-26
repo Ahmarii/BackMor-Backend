@@ -1,19 +1,7 @@
-const { unwatchFile } = require('fs');
 const utils = require('../utils/utils.js');
 const otpGenerator = require('otp-generator');
 const path = require('path')
 
-
-async function sendImage (req, res) {
-    // console.log('img api is called')
-    const img = await utils.getProfileImageByName(req.params.name)
-    if (!img) {
-        res.sendFile(path.join(__dirname, `../public/default.jpg`))
-    } else {
-        res.sendFile(path.join(__dirname, `../public/${img.images_name}`))
-    }
-
-}
 
 async function renderProfile (req, res) {
     
@@ -78,6 +66,8 @@ async function profileUpdate (req, res) {
     }
 }
 
+// Login Regis function 
+
 function renderRegister (req, res) {
     const prompt = 'register';
     const command = 'submit';
@@ -123,6 +113,25 @@ function renderFailLogin (req, res) {
     res.send('login failed.')
 }
 
+function logout (req, res) {
+    req.logout((err) => {
+      if (err) { return next(err); }
+      res.redirect('/login');
+    });
+}
+
+// Send img api
+async function sendImage (req, res) {
+    // console.log('img api is called')
+    const img = await utils.getProfileImageByName(req.params.name)
+    if (!img) {
+        res.sendFile(path.join(__dirname, `../public/default.jpg`))
+    } else {
+        res.sendFile(path.join(__dirname, `../public/${img.images_name}`))
+    }
+
+}
+
 const imageUpload  = utils.upload.single('image')
 
 async function UploadProfileImg (req, res) {
@@ -139,16 +148,98 @@ async function UploadProfileImg (req, res) {
     }
 }
 
-function logout (req, res) {
-    req.logout((err) => {
-      if (err) { return next(err); }
-      res.redirect('/login');
-    });
-}
+// Create Event function.
 
 async function createEvent (req, res) {
-    res.send('pap')
+    res.render('createEvent')
 }
+
+async function getAlltag (req, res) {
+    const tagList = await utils.getAlltag()
+    console.log(tagList)
+    res.json(tagList)
+}
+
+async function searchTag (req, res) {
+    const tagName = await req.body.query
+    const tagQuery= await utils.searchTag(tagName)
+    // const tagList = tagQuery.map(result => [result.tag_name, result.tag_emoji]);
+    // console.log(tagList)
+    res.json(tagQuery)
+}
+
+async function eventSubmit (req, res) {
+    // console.log('event submited')
+    const eventData = req.body
+    await utils.createEvent(eventData, req.user.id)
+    res.redirect('/event/myEvent')
+
+}
+
+async function myEvent (req, res) {
+    res.render('myEventpage')
+}
+
+async function myEventList (req, res) {
+    const eventList = await utils.getMyEvent(req.user.id)
+    // console.log(eventList)
+    res.json(eventList)
+}
+
+async function allEventList (req, res) {
+    const eventList = await utils.getAllevent()
+    res.json(eventList)
+}
+
+async function eventPage (req, res) {
+    res.render('AlleventPage')
+}
+
+async function eventDetail (req, res) {
+    const eventId = req.query.eventId
+    if (eventId) {
+        const event = await utils.getEvent(eventId);
+        // console.log(event)
+        res.render('eventDetail', {
+            eventName: event.event_name,
+            eventDateTime: event.date_time,
+            maxPeople: event.max_people,
+            eventDetail: event.event_detail,
+            eventTag: event.event_tag
+        });
+    } else {
+        res.status(400).json({ error: 'Event ID is required' });
+    }
+}
+
+async function removeEvent (req, res) {
+    const eventId = req.body.event_id
+    await utils.removeEvent(eventId)
+    res.send({ status: 'ok' });
+}
+
+async function joinEvent (req, res) {
+    const eventId = req.body.event_id
+    try {
+        await utils.joinEvent(eventId, req.user.id)
+    } catch (err) {
+        console.log(err)
+        res.send({ status: 'error' })
+    }
+    res.send({ status: 'ok' });
+}
+
+async function joinEventCheck (req, res) {
+    const eventId = req.query.eventId
+    const checker = await utils.joinEventCheck(eventId, req.user.id)
+    if (checker) {
+        res.json({isJoined: true})
+    } else {
+        res.json({isJoined: false})
+    }
+}
+
+// Friend Function
 
 async function add_friend (req, res) {
     console.log('add friend press')
@@ -158,12 +249,11 @@ async function add_friend (req, res) {
 
 }
 
-async function friendRequestList(req, res) {
+async function friendRequestedList(req, res) {
     const friendReqedList = await utils.getFriendReqedList(req.user.id)
     res.json(friendReqedList)
 }
 
-//friend requested list
 async function friendReqList(req, res) {
     const friendReqList = await utils.getFriendReqList(req.user.id)
     res.json(friendReqList)
@@ -229,11 +319,22 @@ module.exports = {
     friendRequest,
     cancelFriendReq,
     friendPage,
-    friendRequestList,
+    friendRequestedList,
     friendRequested,
     friendReqList,
     acceptFriendReq,
     denyFriendReq,
     removeFriend,
-    getFriendList
+    getFriendList,
+    getAlltag,
+    searchTag,
+    eventSubmit,
+    myEvent,
+    myEventList,
+    eventPage,
+    eventDetail,
+    allEventList,
+    removeEvent,
+    joinEvent,
+    joinEventCheck
 }

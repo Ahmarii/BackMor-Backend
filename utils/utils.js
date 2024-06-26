@@ -97,7 +97,7 @@ function getUserdata(username) {
             if (err) {
                 reject(err)
             } else {
-                resolve(res.rows[0])
+                resolve(res.rows)
             }
         })
     })

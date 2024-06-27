@@ -6,7 +6,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const utils = require('../utils/utils.js')
 const generatePassword = require('generate-password')
 const nodemailer = require('nodemailer');
-const secret = require('../secret.json')
+const secret = require('../newSecret.json')
 
 
 

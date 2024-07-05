@@ -1,6 +1,7 @@
 const utils = require('../utils/utils.js');
 const otpGenerator = require('otp-generator');
 const path = require('path')
+const { sendOtpEmail, register } = require('../login_sys/main.js')
 
 
 async function renderProfile (req, res) {
@@ -15,7 +16,6 @@ async function renderProfile (req, res) {
         console.log(error)
         res.redirect('/')
     }
-
 
     const imgName = req.params.name
     if (req.params.name == req.user.username) {
@@ -103,6 +103,7 @@ async function otpVerify (req, res) {
     const otp = await req.body.otp;
     
     if (req.session.otp == otp) {
+      await register(req.session.email, req.session.password)
       res.redirect('/login');
     } else {
       res.send('Invalid OTP.');
@@ -231,7 +232,7 @@ async function joinEvent (req, res) {
 
 async function joinEventCheck (req, res) {
     const eventId = req.query.eventId
-    const checker = await utils.joinEventCheck(eventId, req.user.id)
+    const checker = await utils.joinEventCheck(eventId, req.user.id) 
     if (checker) {
         res.json({isJoined: true})
     } else {

@@ -6,7 +6,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const utils = require('../utils/utils.js')
 const generatePassword = require('generate-password')
 const nodemailer = require('nodemailer');
-const secret = require('../secret.json')
+const secret = require('../newSecret.json')
 
 
 
@@ -168,17 +168,15 @@ async function register (username, password) {
 
 const sendOtpEmail = (user, otp) => {
     const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, // Use `true` for port 465, `false` for all other ports
+        service: 'gmail',
         auth: {
-          user: "marquis55@ethereal.email",
-          pass: "AyPm9nQakR8hsFdqng",
+            user: 'pumasinp@gmail.com',
+            pass: 'aqazmvovsacnoppf', // Your app password
         },
-      });
+    });
   
     const mailOptions = {
-      from: 'marquis55@ethereal.email',
+      from: 'pumasinp@gmail.com',
       to: user,
       subject: 'Your OTP Code',
       text: `Your OTP code is ${otp}`

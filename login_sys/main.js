@@ -11,8 +11,11 @@ const secret = require('../newSecret.json')
 
 
 passport.use(new LocalStrategy(async (username, password, done) => {
+    console.log(password)
     
-    const user = await utils.getUserdata(username)
+    const data = await utils.getUserdata(username)
+    const user = data[0]
+
     if (!user) {
         return done(null, false)
     }
@@ -24,6 +27,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
             return done(null, false)
         }
     } catch (err) {
+        console.log('Local passport error.')
         return done(err);
     }
 

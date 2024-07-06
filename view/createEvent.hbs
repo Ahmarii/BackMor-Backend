@@ -165,7 +165,7 @@
 
         async function fetchMapDetails() {
             try {
-                const response = await fetch('http://localhost:5000/map');
+                const response = await fetch('https://x7k97ts7-5000.asse.devtunnels.ms/map');
                 const mapDetails = await response.json();
                 document.getElementById('eventPlace').value = mapDetails.details;
             } catch (error) {

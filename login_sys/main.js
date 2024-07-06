@@ -11,10 +11,14 @@ const secret = require('../newSecret.json')
 
 
 passport.use(new LocalStrategy(async (username, password, done) => {
-    console.log(password)
     
-    const data = await utils.getUserdata(username)
-    const user = data[0]
+    if (username.includes("@")) {
+        user = await utils.getUserdataByEmail(username)
+    } else {
+        user = await utils.getUserdata(username)
+    }
+
+    console.log(user)
 
     if (!user) {
         return done(null, false)
@@ -151,6 +155,7 @@ function ensureAuthenticated(req, res, next) {
 async function register (username, password) {
     const checker = await utils.getUserdata(username)
 
+
     if (checker) {
         console.log('User already exist.')
         return false
@@ -159,7 +164,7 @@ async function register (username, password) {
 
     const salt = await bcrypt.genSalt(10);
     const hash_pass = await bcrypt.hash(password, salt);
-    await utils.insertUser(username, hash_pass, 'bruh')
+    await utils.insertUser(username, hash_pass, username)
 
 
     const user = await utils.getUserdata(username)

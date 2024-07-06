@@ -103,8 +103,13 @@ async function otpVerify (req, res) {
     const otp = await req.body.otp;
     
     if (req.session.otp == otp) {
-      await register(req.session.email, req.session.password)
-      res.redirect('/login');
+      const response = await register(req.session.email, req.session.password)
+      if (response) {
+        res.redirect('/login');
+      } else {
+        res.redirect('/fail')
+      }
+
     } else {
       res.send('Invalid OTP.');
     }

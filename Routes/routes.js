@@ -13,7 +13,9 @@ const { ensureAuthenticated,
 
 const {
     sendImage,
+    pagenotfound,
     renderProfile,
+    renderMyprofile,
     profileUpdate,
     renderRegister,
     renderLogin,
@@ -58,9 +60,13 @@ router.get('/', (req, res) => {
     res.send('cpre888 บิดแล้วรวยซวยแล้วมึง');
 });
 
+router.get('/pagenotfound', pagenotfound)
+
 router.get('/image/:name', sendImage)
 
 router.get('/profile/:name', ensureAuthenticated, renderProfile);
+
+router.get('/profile', ensureAuthenticated, renderMyprofile)
 
 router.post('/profile', profileUpdate );
 
@@ -141,5 +147,9 @@ router.post('/acceptFriendReq', acceptFriendReq )
 router.post('/denyFriendReq', denyFriendReq )
 
 router.post('/removeFriend', removeFriend)
+
+router.use((req, res, next) => {
+    res.redirect('/pagenotfound')
+})
 
 module.exports = router;

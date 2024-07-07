@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -6,13 +6,20 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const utils = require('../utils/utils.js')
 const generatePassword = require('generate-password')
 const nodemailer = require('nodemailer');
-const secret = require('../secret.json')
+const secret = require('../newSecret.json')
 
 
 
 passport.use(new LocalStrategy(async (username, password, done) => {
     
-    const user = await utils.getUserdata(username)
+    if (username.includes("@")) {
+        user = await utils.getUserdataByEmail(username)
+    } else {
+        user = await utils.getUserdata(username)
+    }
+
+    console.log(user)
+
     if (!user) {
         return done(null, false)
     }
@@ -24,6 +31,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
             return done(null, false)
         }
     } catch (err) {
+        console.log('Local passport error.')
         return done(err);
     }
 
@@ -147,6 +155,7 @@ function ensureAuthenticated(req, res, next) {
 async function register (username, password) {
     const checker = await utils.getUserdata(username)
 
+
     if (checker) {
         console.log('User already exist.')
         return false
@@ -155,7 +164,7 @@ async function register (username, password) {
 
     const salt = await bcrypt.genSalt(10);
     const hash_pass = await bcrypt.hash(password, salt);
-    await utils.insertUser(username, hash_pass, 'bruh')
+    await utils.insertUser(username, hash_pass, username)
 
 
     const user = await utils.getUserdata(username)
@@ -168,17 +177,15 @@ async function register (username, password) {
 
 const sendOtpEmail = (user, otp) => {
     const transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false, // Use `true` for port 465, `false` for all other ports
+        service: 'gmail',
         auth: {
-          user: "marquis55@ethereal.email",
-          pass: "AyPm9nQakR8hsFdqng",
+            user: 'pumasinp@gmail.com',
+            pass: 'aqazmvovsacnoppf', // Your app password
         },
-      });
+    });
   
     const mailOptions = {
-      from: 'marquis55@ethereal.email',
+      from: 'pumasinp@gmail.com',
       to: user,
       subject: 'Your OTP Code',
       text: `Your OTP code is ${otp}`

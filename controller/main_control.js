@@ -1,21 +1,25 @@
 const utils = require('../utils/utils.js');
 const otpGenerator = require('otp-generator');
 const path = require('path')
+const { sendOtpEmail, register } = require('../login_sys/main.js')
 
+
+async function pagenotfound (req, res) {
+    res.status(404).send('Page Not Found.')
+}
 
 async function renderProfile (req, res) {
     
     const data = await utils.getCustomerDataByUsername(req.params.name)
 
-    // console.log(data)
-    try {
-        firstname = data.firstname;
-        lastname = data.lastname;
-    } catch (error) {
-        console.log(error)
-        res.redirect('/')
+    if (!data) {
+        console.log('Error at render profile.')
+        return res.redirect('/')
     }
 
+    // console.log(data)
+    const firstname = data.firstname;
+    const lastname = data.lastname;
 
     const imgName = req.params.name
     if (req.params.name == req.user.username) {
@@ -41,6 +45,22 @@ async function renderProfile (req, res) {
         console.log('render other Profile')
         res.render('other_profile', { firstname, lastname, imgName, username, addFriendButton })
     }
+
+}
+
+async function renderMyprofile (req, res) {
+    const data = await utils.getCustomerDataByUsername(req.user.username)
+
+    if (!data) {
+        console.log('Render my profile error')
+        return res.redirect('/')
+    }
+    const firstname = data.firstname;
+    const lastname = data.lastname;
+    const username = req.user.username
+    const imgName = req.user.username
+    console.log('render Profile')
+    res.render('profile', { firstname, lastname, imgName, username });
 
 }
 
@@ -103,7 +123,13 @@ async function otpVerify (req, res) {
     const otp = await req.body.otp;
     
     if (req.session.otp == otp) {
-      res.redirect('/login');
+      const response = await register(req.session.email, req.session.password)
+      if (response) {
+        res.redirect('/login');
+      } else {
+        res.redirect('/fail')
+      }
+
     } else {
       res.send('Invalid OTP.');
     }
@@ -231,7 +257,7 @@ async function joinEvent (req, res) {
 
 async function joinEventCheck (req, res) {
     const eventId = req.query.eventId
-    const checker = await utils.joinEventCheck(eventId, req.user.id)
+    const checker = await utils.joinEventCheck(eventId, req.user.id) 
     if (checker) {
         res.json({isJoined: true})
     } else {
@@ -315,6 +341,8 @@ async function getFriendList (req, res) {
 module.exports = {
     sendImage,
     renderProfile,
+    renderMyprofile,
+    pagenotfound,
     profileUpdate,
     renderRegister,
     renderLogin,

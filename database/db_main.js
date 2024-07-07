@@ -1,16 +1,29 @@
 const fs = require('fs');
 const { Client } = require('pg');
-const secret = require('../secret.json')
+const secret = require('../newSecret.json')
 
 // PostgreSQL connection configuration
+// const config = {
+//     user: "avnadmin",
+//     password: secret.db_password,
+//     host: "cpre88-jayc.g.aivencloud.com",
+//     port: 14871,
+//     database: "maindb",
+//     ssl: {
+//         rejectUnauthorized: true,
+//         ca: secret.db_cd
+//         ,
+//     },
+// };
+
 const config = {
-    user: 'patong',
+    user: 'admin888',
     host: 'cpre888.cd4ysw4ic6v5.ap-southeast-2.rds.amazonaws.com',
     database: 'maindb3',
-    password: '123456',
+    password: secret.db_password,
     port: 5432, // Default PostgreSQL port
     ssl: {
-        rejectUnauthorized: false, // Allows connections even if the SSL certificate is self-signed
+        rejectUnauthorized: false 
     },
 };
 
@@ -47,7 +60,7 @@ async function test() {
     })
 }
 
-// test()
+// const haha = test()
 
 module.exports = {
     db,

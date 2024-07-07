@@ -303,6 +303,23 @@ async function joinEventCheck (event_id, user_id) {
     })
 }
 
+async function cancelJoinEvent(event_id, user_id) {
+    const checker = await joinEventCheck(event_id, user_id)
+
+    if (checker) {
+        await db.query(`DELETE FROM event_member WHERE user_id = $1 and id_of_event = $2`, [user_id, event_id], function(err) {
+            if (err) {
+                console.log('cancel join event error.')
+                return console.error(err.message)
+            }
+            console.log(`cancel join event success.`)
+        })
+    } else {
+        return console.error('Have not been joined')
+    }
+}
+
+
 async function getEventMember (event_id) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.event WHERE event_creator = $1`, [id],
@@ -575,5 +592,6 @@ module.exports = {
     getAllevent,
     removeEvent,
     joinEventCheck,
-    joinEvent
+    joinEvent,
+    cancelJoinEvent
 }

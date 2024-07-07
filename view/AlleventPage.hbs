@@ -61,6 +61,13 @@
                             joinEvent(event.event_id);
                         };
 
+                        const cancelJoinButton = document.createElement('button');
+                        cancelJoinButton.textContent = 'Cancel Join ❌';
+                        cancelJoinButton.className = 'cancelJoinText';
+                        cancelJoinButton.onclick = () => {
+                            cancelJoinEvent(event.event_id);
+                        };
+
                         eventBox.appendChild(eventName);
                         eventBox.appendChild(eventDate);
 
@@ -68,10 +75,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.isJoined) {
-                                const joinedText = document.createElement('div');
-                                joinedText.className = 'joinedText';
-                                joinedText.textContent = 'Joined';
-                                eventBox.appendChild(joinedText);
+                                eventBox.appendChild(cancelJoinButton);
                             } else {
                                 eventBox.appendChild(joinEventButton);
                             }
@@ -103,6 +107,7 @@
                 });
                 if (response.ok) {
                     console.log(`Event id ${event_id} joined`);
+                    location.reload();
                 } else {
                     console.error('Failed to join event');
                 }
@@ -110,7 +115,27 @@
                 console.error('Error:', error);
             }
         }
-        
+        async function cancelJoinEvent(event_id){
+            try {
+                const response = await fetch('/cancelJoinEvent', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ event_id: event_id })
+                });
+                if (response.ok) {
+                    console.log(`Event id ${event_id} canceled`);
+                    location.reload(); // Refresh Page to update status
+                } else {
+                    console.error('Failed to cancel join event');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+
     </script>
 </body>
 </html>

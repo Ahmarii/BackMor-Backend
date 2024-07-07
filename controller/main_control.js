@@ -265,6 +265,18 @@ async function joinEventCheck (req, res) {
     }
 }
 
+async function cancelJoinEvent (req, res){
+    const eventId = req.body.event_id
+    console.log(eventId)
+    try {
+        await utils.cancelJoinEvent(eventId, req.user.id)
+    } catch (err) {
+        console.log(err)
+        res.send({ status: 'error' })
+    }
+    res.send({ status: 'ok' });
+}
+
 // Friend Function
 
 async function add_friend (req, res) {
@@ -364,5 +376,6 @@ module.exports = {
     allEventList,
     removeEvent,
     joinEvent,
-    joinEventCheck
+    joinEventCheck,
+    cancelJoinEvent
 }

@@ -49,7 +49,8 @@ const {
     allEventList,
     removeEvent,
     joinEvent,
-    joinEventCheck
+    joinEventCheck,
+    cancelJoinEvent
 } = require('../controller/main_control.js')
 
 
@@ -121,6 +122,8 @@ router.post('/removeEvent', removeEvent )
 router.post('/joinEvent', joinEvent )
 
 router.get('/event/joinEventCheck', joinEventCheck )
+
+router.post('/cancelJoinEvent', cancelJoinEvent)
 
 // Friend Route
 router.get('/friend', ensureAuthenticated, friendPage )

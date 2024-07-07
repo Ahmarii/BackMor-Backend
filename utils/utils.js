@@ -322,13 +322,14 @@ async function cancelJoinEvent(event_id, user_id) {
 
 async function getEventMember (event_id) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM public.event WHERE event_creator = $1`, [id],
+        db.query(`SELECT username FROM username_password 
+            JOIN event_member ON event_member.user_id = username_password.id WHERE event_member.id_of_event = $1;`, [event_id],
             (err, data) => {
                 if (err) {
-                    console.log('My event error.')
+                    console.log('event member error.')
                     reject(err);
                 } else {
-                    console.log('My event sended.')
+                    console.log('event member sended.')
                     resolve(data.rows);
                 }
             }
@@ -336,7 +337,6 @@ async function getEventMember (event_id) {
     })
 }
 
-// to do next
 async function getMyEvent (id) {
     return new Promise((resolve, reject) => {
         db.query(`SELECT * FROM public.event WHERE event_creator = $1`, [id],
@@ -593,5 +593,6 @@ module.exports = {
     removeEvent,
     joinEventCheck,
     joinEvent,
-    cancelJoinEvent
+    cancelJoinEvent,
+    getEventMember
 }

@@ -227,6 +227,7 @@ async function eventDetail (req, res) {
         const event = await utils.getEvent(eventId);
         // console.log(event)
         res.render('eventDetail', {
+            eventId: eventId,
             eventName: event.event_name,
             eventDateTime: event.date_time,
             maxPeople: event.max_people,
@@ -272,9 +273,24 @@ async function cancelJoinEvent (req, res){
         await utils.cancelJoinEvent(eventId, req.user.id)
     } catch (err) {
         console.log(err)
-        res.send({ status: 'error' })
+        res.send({ status: 'cancel join event error' })
     }
     res.send({ status: 'ok' });
+}
+
+async function eventMember (req, res) {
+    const eventId = req.query.eventId
+    console.log(eventId)
+    try {
+        const eventmember = await utils.getEventMember(eventId)
+        console.log('event member route send')
+        console.log(eventmember)
+        res.json(eventmember)
+    } catch (err) {
+        console.log(err)
+        res.send({status: 'event member error'})
+    }
+
 }
 
 // Friend Function
@@ -377,5 +393,6 @@ module.exports = {
     removeEvent,
     joinEvent,
     joinEventCheck,
-    cancelJoinEvent
+    cancelJoinEvent,
+    eventMember
 }

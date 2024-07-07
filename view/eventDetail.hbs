@@ -37,8 +37,46 @@
         <div class="event-info">Max People: {{maxPeople}}</div>
         <div class="event-description">{{eventDetail}}</div>
     </div>
+    <div id="member-container"></div>
     <script>
-        
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch(`/eventMember/eventId?eventId={{eventId}}`)
+                .then(response => response.json())
+                .then(memberObj => {
+                    const memberContainer = document.getElementById('member-container');
+                    memberObj.forEach(member => {
+                        const memberbox = document.createElement('div');
+                        memberbox.className = 'memberbox'
+                        memberbox.dataset.username = member.username
+
+                        const memberUsername = document.createElement('div');
+                        memberUsername.className = 'member-username';
+                        memberUsername.textContent = member.username;
+
+                        const memberImg = document.createElement('img');
+                        memberImg.src = `http://localhost:5000/image/${member.username}`;
+                        memberImg.alt = `${member.username}'s image`;
+                        memberImg.className = 'member-image';
+                        memberImg.style.maxWidth = '70px'; 
+                        memberImg.style.maxHeight = '70px';   
+                        memberImg.style.width = 'auto';       
+                        memberImg.style.height = 'auto';
+
+                        memberbox.appendChild(memberUsername);
+                        memberbox.appendChild(memberImg);
+
+                        memberbox.addEventListener('click', () => {
+                            window.location.href = `/profile/${member.username}`;
+                        });
+
+                        memberContainer.appendChild(memberbox)
+                        
+                    })
+                })
+                .catch(error => {
+                    console.error('Error fetching events:', error);
+                });
+        });
     </script>
 </body>
 </html>
